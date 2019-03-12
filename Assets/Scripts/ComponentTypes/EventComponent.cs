@@ -19,7 +19,10 @@ namespace CSD
 		}
 		public override bool IsComplete ()
 		{
-			return rangeTo == null || actor == null || Vector2.Distance (rangeTo.position, actor.position) <= range;
+			if (rangeTo == null || actor == null || Vector2.Distance (rangeTo.position, actor.position) <= range)
+				return true;
+			else
+				return false;
 		}
 		public override EventComponent GetWayToDo () {
 			var actorAgent = actor.GetEntity ().GetComponent<AgentComponent> ();
@@ -29,8 +32,11 @@ namespace CSD
 		}
 	}
 
-	public class EventComponent : Component
+	public class EventComponent : UpdateableComponent
 	{
+		public EventComponent() {
+		}
+
 		public virtual string GetName(){
 			return "Unnamed Event";
 		}
@@ -40,6 +46,7 @@ namespace CSD
 		}
 
 		public virtual void Initialize(){
+			Activate ();
 		}
 
 		public virtual List<Resource> GetRequiredResources(){
@@ -47,7 +54,7 @@ namespace CSD
 		}
 
 		//return true when the event is complete and is ready to be destroyed
-		public virtual void Update(float time){
+		public  override void Update(float time){
 			//TODO this is where we update things and generate effects
 		}
 
@@ -80,8 +87,10 @@ namespace CSD
 
 		public override void Initialize ()
 		{
+			EntityManager.RegisterUpdatable (this);
 			mover.movement.user = this;
 			this.maxDist = Vector2.Distance (desiredPosition, moverPosition.position);
+			Activate ();
 		}
 
 		public override List<Resource> GetRequiredResources(){
@@ -101,7 +110,7 @@ namespace CSD
 
 		//return true when the event is complete and is ready to be destroyed
 		public override void Update(float time){
-			if (mover == null || progress >= 1.0f)
+			if (mover == null || progress >= 1.0f || mover.movement.user != this)
 				progress = 1.0f;
 			else {
 				Vector2 desiredDelta = desiredPosition - moverPosition.position;
@@ -117,6 +126,8 @@ namespace CSD
 				float distance = Vector2.Distance (moverPosition.position, desiredPosition);
 				progress = (maxDist-distance)/maxDist;
 			}
+			if (progress >= 1.0f)
+				Debug.Log ("Finished " + GetName ());
 		}
 
 		public override bool IsComplete(){
@@ -128,24 +139,30 @@ namespace CSD
 	{
 		private AgentComponent eater;
 		private PositionComponent food;
+		private PlantComponent plant;
 		private float progress;
+		private float initialSize;
 
 		public EatEvent (AgentComponent eater, PositionComponent food)
 		{
 			this.eater = eater;
 			this.food = food;
+			this.plant = food.GetEntity ().GetComponent<PlantComponent> ();
 		}
 
 		public override void Initialize ()
 		{
 			progress = 0f;
 			eater.movement.user = this;
+			Activate ();
+			initialSize = plant.size;
 		}
 
 		public override List<Resource> GetRequiredResources(){
 			//TODO get requirements instead of just resources so it can be used by the AI to plan out actions
 			List<Resource> resources = new List<Resource> ();
 			resources.Add (eater.movement);
+			resources.Add (plant.substance);
 			return resources;
 		}
 
@@ -159,14 +176,17 @@ namespace CSD
 
 		//return true when the event is complete and is ready to be destroyed
 		public override void Update(float time){
-			if (eater == null || food == null || progress >= 1.0f)
+			if (eater == null || food == null || progress >= 1.0f || eater.movement.user != this || plant == null || plant.substance.user != this)
 				progress = 1.0f;
 			else {
-				progress = Mathf.Min (1f, progress + time * eater.eatSpeed);
+				plant.size -= eater.eatSpeed*time;
+				progress = 1- plant.size / initialSize;
 			}
 			if (IsComplete()) {
 				food.GetEntity().SetDestroyed(true);
 			}
+			if (progress >= 1.0f)
+				Debug.Log ("Finished " + GetName ());
 		}
 
 		public override bool IsComplete(){
@@ -179,4 +199,61 @@ namespace CSD
 			return requirements;
 		}
 	}
+
+	/*
+	public class GrowEvent : EventComponent
+	{
+		private PlantComponent plant;
+		private float progress;
+
+		public GrowEvent (PlantComponent plant) 
+		{
+			this.plant = plant;
+		}
+
+		public override void Initialize ()
+		{
+			plant.substance.user = this;
+			progress = plant.size/plant.maxSize/plant.growthRate;
+		}
+
+		public override List<Resource> GetRequiredResources(){
+			List<Resource> resources = new List<Resource> ();
+			resources.Add (plant.substance);
+			return resources;
+		}
+
+		public override string GetName(){
+			return "Grow";
+		}
+
+		public override string GetDescription(){
+			return plant.ToString()+" is growing";
+		}
+
+		//return true when the event is complete and is ready to be destroyed
+		public override void Update(float time){
+			if (plant == null|| progress >= 1.0f || plant.substance.user!=this)
+				progress = 1.0f;
+			else {
+				plant.size = Mathf.Max (Mathf.Min (plant.size+time*plant.growthRate, plant.maxSize), plant.minSize);
+				progress = Mathf.Min (plant.size/plant.maxSize);
+			}
+			if (IsComplete()) {
+				if(plant.size==plant.maxSize)
+					plant.SpawnOffspring ();
+				if(plant.size==plant.maxSize)
+					plant.GetEntity ().SetDestroyed (true);
+			}
+		}
+
+		public override bool IsComplete(){
+			return progress >= 1.0f;
+		}
+
+		public override List<Requirement> GetRequirments(){
+			List<Requirement> requirements = new List<Requirement> ();
+			return requirements;
+		}
+	}*/
 }

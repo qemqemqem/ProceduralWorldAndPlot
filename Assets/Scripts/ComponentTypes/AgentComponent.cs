@@ -41,7 +41,7 @@ namespace CSD
 		}
 	}
 
-	public class AgentComponent : Component
+	public class AgentComponent : UpdateableComponent
 	{
 		public List<Objective> objectives = new List<Objective> ();
 		//public List<EventComponent> currentEvents = new List<EventComponent> ();
@@ -55,33 +55,23 @@ namespace CSD
 		public PositionComponent targetFood;
 
 		//TODO maybe add convenience for tracking resources in derived events
-		public AgentComponent ()
+		public AgentComponent () : base()
 		{
 			movement = new Resource("Movement", this);
+			Activate ();
 		}
 		//for now we can just use these updates to simulate things and have the simulation speed be pausable and change
-		public void Update(float time){
+		public override void Update(float time){
 
 			UpdateObjectives ();
 
 			if (objectives.Count==0) {
 				List<PositionComponent> foods = ProceduralWorldSimulator.instance.foods;
+				if (foods.Count == 0)
+					return;
 				var targetFood = foods [UnityEngine.Random.Range (0, foods.Count - 1)];
 				Debug.Log ("Starting objective to eat food at "+targetFood.position);
 				objectives.Add (new FullySpecifiedObjective (new EatEvent (this, targetFood)));
-				/*
-				if (targetFood == null)
-					return;
-				EventComponent eatEvent = new EatEvent (this, targetFood);
-				if (!eatEvent.IsComplete ()) {
-					Debug.Log ("Starting " + eatEvent.GetDescription ());
-					ProceduralWorldSimulator.instance.ongoingEvents.Add (eatEvent);
-					targetFood = null;
-				} else {
-					MoveEvent moveEvent = new MoveEvent (this, targetFood.position, moveSpeed);
-					Debug.Log ("Starting " + moveEvent.GetDescription ());
-					ProceduralWorldSimulator.instance.ongoingEvents.Add (moveEvent);
-				}*/
 			}
 			PruneEvents ();
 		}
@@ -118,7 +108,7 @@ namespace CSD
 		public void AllocateResources(EventComponent action){
 			action.Initialize ();
 			//currentEvents.Add (action);
-			ProceduralWorldSimulator.instance.ongoingEvents.Add (action);
+			//ProceduralWorldSimulator.instance.ongoingEvents.Add (action);
 		}
 
 		public void RankObjectives(){

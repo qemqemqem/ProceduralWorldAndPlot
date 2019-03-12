@@ -21,15 +21,11 @@ public class ViewTest : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		RemoveTheDead();
-		for (int i = 0; i < entities.Count; i++) {
-			var pos = entities[i].GetComponent<PositionComponent>().position;
-			displaysMap[entities[i]].transform.position = new Vector3(pos.x, 0, pos.y);
-		}
 	}
 
 	public void RemoveTheDead() {
 		foreach (var entity in entities) {
-			if (entity.isDestroyed) {
+			if (entity.IsDestroyed()) {
 				Destroy(displaysMap[entity]);
 			}
 		}
@@ -38,8 +34,9 @@ public class ViewTest : MonoBehaviour {
 
 	public static void AddEntity(Entity entity) {
 		entities.Add(entity);
-
 		GameObject display = GameObject.Instantiate(viewer.prototype);
+		UnityMeshComponent meshComponent = display.AddComponent<UnityMeshComponent>();
+		meshComponent.SetEntity (entity);
 		displaysMap[entity] = display;
 	}
-}
+}//*/

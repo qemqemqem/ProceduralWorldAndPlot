@@ -20,9 +20,13 @@ namespace CSD{
 	public class Entity : IEntity {
 		private List<IComponent> components = new List<IComponent> ();
 
-		public bool isDestroyed = false;
+		private bool isDestroyed = false;
 		public bool IsDestroyed() {return isDestroyed;}
 		public void SetDestroyed(bool destroyed) {isDestroyed = destroyed;}
+
+		public Entity(){
+			EntityManager.RegisterEntity (this);
+		}
 
 		public T GetComponent<T>() where T : IComponent{
 			foreach (var component in components) {
@@ -91,6 +95,25 @@ namespace CSD{
 			entity.AddComponent(this);
 		}
 		public Component () {}
+	}
+
+	public class UpdateableComponent : Component{
+		public UpdateableComponent () {
+		}
+
+		public void Activate(){
+			EntityManager.RegisterUpdatable(this);
+		}
+
+		public UpdateableComponent (IEntity entity) : base (entity) {
+			EntityManager.RegisterUpdatable (this);
+		}
+
+		public virtual void Update(float time){
+		}
+		public virtual double SecondsPerCall(){
+			return 1f;
+		}
 	}
 
 }

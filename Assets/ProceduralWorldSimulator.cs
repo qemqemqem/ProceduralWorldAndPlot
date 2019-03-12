@@ -6,9 +6,8 @@ using UnityEngine;
 namespace CSD{
 	public class ProceduralWorldSimulator : MonoBehaviour {
 		public static ProceduralWorldSimulator instance;
-		public List<EventComponent> ongoingEvents = new List<EventComponent>();
-		public List<AgentComponent> agents = new List<AgentComponent>();
 		public List<PositionComponent> foods = new List<PositionComponent> ();
+		private static EntityManager manager = new EntityManager();
 
 		// Use this for initialization
 		void Start () {
@@ -18,6 +17,7 @@ namespace CSD{
 
 		void Update () {
 			HandleInterface ();
+			//TODO we need some better way to track world data maybe???
 			RemoveTheDead();
 			UpdateWorld (Time.deltaTime);
 		}
@@ -27,23 +27,8 @@ namespace CSD{
 		}
 
 		public void UpdateWorld(float time){
-			foreach (var worldEvent in ongoingEvents) {
-				worldEvent.Update (time);
-				if (worldEvent.IsComplete ()) {
-					Debug.Log ("Completed " + worldEvent.GetDescription ());
-				}
-			}
-			ongoingEvents.RemoveAll (x => x.IsComplete());
-			foreach (var resource in Resource.allResources) {
-				if (resource.user != null && resource.user.IsComplete ()) {
-					resource.user = null;
-				}
-			}
+			manager.Update (time);
 
-			//TODO sort the agents in some stable order
-			foreach (var agent in agents) {
-				agent.Update (time);
-			}
 		}
 		public void HandleInterface(){
 			//TODO implement this
@@ -66,6 +51,8 @@ namespace CSD{
 				position.position = new Vector2 (UnityEngine.Random.value * mapSize, UnityEngine.Random.value * mapSize);
 				food.AddComponent (position);
 				foods.Add (position);
+				PlantComponent plant = new PlantComponent ();
+				food.AddComponent (plant);
 				ViewTest.AddEntity(food);
 			}
 			for (int i = 0; i < numPeople; ++i) {
@@ -76,7 +63,6 @@ namespace CSD{
 				AgentComponent agent = new AgentComponent ();
 				agent.name = GetRandomName();
 				person.AddComponent (agent);
-				agents.Add (agent);
 				ViewTest.AddEntity(person);
 			}
 		}
