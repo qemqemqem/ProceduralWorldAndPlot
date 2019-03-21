@@ -67,6 +67,13 @@ namespace CSD
 		}
 	}
 
+	public class InstantEvent : EventComponent
+	{
+		public override bool IsComplete() {
+			return true;
+		}
+	}
+
 	public class MoveEvent : EventComponent
 	{
 		private AgentComponent mover;
@@ -125,6 +132,12 @@ namespace CSD
 				moverPosition.position += desiredDelta;
 				float distance = Vector2.Distance (moverPosition.position, desiredPosition);
 				progress = (maxDist-distance)/maxDist;
+			}
+			// Move whatever they're hauling.
+			var inventoryComponent = mover.GetEntity().GetComponent<InventoryComponent> ();
+			if (!inventoryComponent.haulingSlot.IsFree()) {
+				var hauledPosition = inventoryComponent.haulingSlot.item.GetEntity().GetComponent<PositionComponent> ();
+				hauledPosition.position = moverPosition.position + Vector2.up;
 			}
 			if (progress >= 1.0f)
 				Debug.Log ("Finished " + GetName ());
@@ -206,7 +219,7 @@ namespace CSD
 		private PlantComponent plant;
 		private float progress;
 
-		public GrowEvent (PlantComponent plant) 
+		public GrowEvent (PlantComponent plant)
 		{
 			this.plant = plant;
 		}

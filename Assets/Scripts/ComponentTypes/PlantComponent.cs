@@ -45,6 +45,7 @@ namespace CSD
 				Entity offspring = new Entity ();
 				offspring.AddComponent (offspringPos);
 				offspring.AddComponent (offspringPlant);
+				offspring.AddComponent (new CarriableComponent ());
 				ProceduralWorldSimulator.instance.foods.Add (offspringPos);
 				ViewTest.AddEntity (offspring);
 			}

@@ -4,23 +4,6 @@ using UnityEngine;
 
 namespace CSD
 {
-
-	public class Resource {
-		public static List<Resource> allResources = new List<Resource> ();
-		public string name;
-		public Component owner;
-		public EventComponent user;
-		public Resource(string name, Component owner){
-			this.name = name;
-			this.owner = owner;
-			allResources.Add (this);
-		}
-
-		public bool IsFree(){
-			return user == null;
-		}
-	}
-
 	public class Objective {
 		public virtual bool IsComplete(){
 			return false;
@@ -46,7 +29,7 @@ namespace CSD
 		public List<Objective> objectives = new List<Objective> ();
 		//public List<EventComponent> currentEvents = new List<EventComponent> ();
 		public Dictionary<EventComponent, Objective> action2Objective = new Dictionary<EventComponent, Objective> ();
-		//TODO 
+		//TODO
 		public Resource movement;
 		public string name="Glorpo";
 		public float fullness=100;
@@ -67,11 +50,31 @@ namespace CSD
 
 			if (objectives.Count==0) {
 				List<PositionComponent> foods = ProceduralWorldSimulator.instance.foods;
-				if (foods.Count == 0)
-					return;
-				var targetFood = foods [UnityEngine.Random.Range (0, foods.Count - 1)];
-				Debug.Log ("Starting objective to eat food at "+targetFood.position);
-				objectives.Add (new FullySpecifiedObjective (new EatEvent (this, targetFood)));
+				// AI goes here.
+
+				if (UnityEngine.Random.value > .5) {
+					// Inventory.
+					InventoryComponent inventoryComponent = GetEntity().GetComponent<InventoryComponent>();
+					if (!inventoryComponent.haulingSlot.IsFree()) {
+						// Drop it.
+						objectives.Add (new FullySpecifiedObjective (new DropEvent(inventoryComponent, inventoryComponent.haulingSlot)));
+						Debug.Log("Starting objective to drop hauled item");
+					} else {
+						// Pick something up.
+						if (foods.Count == 0)
+							return;
+						var targetFood = foods [UnityEngine.Random.Range (0, foods.Count - 1)];
+						Debug.Log ("Starting objective to pick up food at "+targetFood.position);
+						objectives.Add (new FullySpecifiedObjective (new PickUpEvent (inventoryComponent, targetFood.GetEntity().GetComponent<CarriableComponent> ())));
+					}
+				} else {
+					// Eating.
+					if (foods.Count == 0)
+						return;
+					var targetFood = foods [UnityEngine.Random.Range (0, foods.Count - 1)];
+					Debug.Log ("Starting objective to eat food at "+targetFood.position);
+					objectives.Add (new FullySpecifiedObjective (new EatEvent (this, targetFood)));
+				}
 			}
 			PruneEvents ();
 		}
@@ -136,7 +139,7 @@ namespace CSD
 			return false;
 		}
 
-			
+
 		public EventComponent GetBestDoableAction(Objective objective){
 			EventComponent action = GetBestAction (objective);
 			if (!AreResourcesAvailable (action))
@@ -163,7 +166,7 @@ namespace CSD
 			}
 			return true;
 		}
-	
+
 		public EventComponent GetBestAction(Objective objective){
 			var wayToDo = objective.GetWayToDo ();
 			if (wayToDo != null) {
@@ -176,4 +179,3 @@ namespace CSD
 
 	}
 }
-

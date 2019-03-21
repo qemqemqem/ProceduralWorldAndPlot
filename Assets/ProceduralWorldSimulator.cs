@@ -53,6 +53,7 @@ namespace CSD{
 				foods.Add (position);
 				PlantComponent plant = new PlantComponent ();
 				food.AddComponent (plant);
+				food.AddComponent (new CarriableComponent ());
 				ViewTest.AddEntity(food);
 			}
 			for (int i = 0; i < numPeople; ++i) {
@@ -63,6 +64,7 @@ namespace CSD{
 				AgentComponent agent = new AgentComponent ();
 				agent.name = GetRandomName();
 				person.AddComponent (agent);
+				person.AddComponent (new InventoryComponent());
 				ViewTest.AddEntity(person);
 			}
 		}
