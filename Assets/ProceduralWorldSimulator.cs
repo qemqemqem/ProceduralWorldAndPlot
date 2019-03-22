@@ -61,7 +61,9 @@ namespace CSD{
 				PositionComponent position = new PositionComponent ();
 				position.position = new Vector2 (UnityEngine.Random.value * mapSize, UnityEngine.Random.value * mapSize);
 				person.AddComponent (position);
-				AgentComponent agent = new AgentComponent ();
+				HumanoidAI brain = new HumanoidAI ();
+				person.AddComponent (brain);
+				AgentComponent agent = new AgentComponent (brain);
 				agent.name = GetRandomName();
 				person.AddComponent (agent);
 				person.AddComponent (new InventoryComponent());

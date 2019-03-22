@@ -156,9 +156,9 @@ namespace CSD
 		private float progress;
 		private float initialSize;
 
-		public EatEvent (AgentComponent eater, PositionComponent food)
+		public EatEvent (IEntity eater, PositionComponent food)
 		{
-			this.eater = eater;
+			this.eater = eater.GetComponent<AgentComponent>();
 			this.food = food;
 			this.plant = food.GetEntity ().GetComponent<PlantComponent> ();
 		}

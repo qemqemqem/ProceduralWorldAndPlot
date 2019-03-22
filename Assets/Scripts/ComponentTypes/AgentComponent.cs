@@ -4,6 +4,61 @@ using UnityEngine;
 
 namespace CSD
 {
+	public class AI : Component {
+		public List<Objective> objectives = new List<Objective> ();
+
+		public virtual EventComponent GetBestAction (Objective objective){
+			var wayToDo = objective.GetWayToDo ();
+			if (wayToDo != null) {
+				return wayToDo;
+			}
+			if (objective is FullySpecifiedObjective)
+				return ((FullySpecifiedObjective)objective).wayToDoObjective;
+			return null;
+		}
+		public virtual List<Objective> GetSortedObjectives (){
+			return objectives;
+		}
+		public void NotifyOfCompleteObjective(Objective obj){
+			if(obj.IsComplete())
+				objectives.Remove (obj);
+		}
+	}
+
+	public class HumanoidAI : AI {
+		public override List<Objective> GetSortedObjectives(){
+			if (objectives.Count==0) {
+				List<PositionComponent> foods = ProceduralWorldSimulator.instance.foods;
+				// AI goes here.
+				//*
+				if (UnityEngine.Random.value > .5) {
+					// Inventory.
+					InventoryComponent inventoryComponent = GetEntity().GetComponent<InventoryComponent>();
+					if (!inventoryComponent.haulingSlot.IsFree()) {
+						// Drop it.
+						objectives.Add (new FullySpecifiedObjective (new DropEvent(inventoryComponent, inventoryComponent.haulingSlot)));
+						Debug.Log("Starting objective to drop hauled item");
+					} else {
+						// Pick something up.
+						if (foods.Count == 0)
+							return new List<Objective>();
+						var targetFood = foods [UnityEngine.Random.Range (0, foods.Count - 1)];
+						Debug.Log ("Starting objective to pick up food at "+targetFood.position);
+						objectives.Add (new FullySpecifiedObjective (new PickUpEvent (inventoryComponent, targetFood.GetEntity().GetComponent<CarriableComponent> ())));
+					}
+				} else {
+					// Eating.
+					if (foods.Count == 0)
+						return new List<Objective>();;
+					var targetFood = foods [UnityEngine.Random.Range (0, foods.Count - 1)];
+					Debug.Log ("Starting objective to eat food at "+targetFood.position);
+					objectives.Add (new FullySpecifiedObjective (new EatEvent (GetEntity(), targetFood)));
+				}//*/
+			}
+			return objectives;
+		}
+	}
+
 	public class Objective {
 		public virtual bool IsComplete(){
 			return false;
@@ -26,8 +81,6 @@ namespace CSD
 
 	public class AgentComponent : UpdateableComponent
 	{
-		public List<Objective> objectives = new List<Objective> ();
-		//public List<EventComponent> currentEvents = new List<EventComponent> ();
 		public Dictionary<EventComponent, Objective> action2Objective = new Dictionary<EventComponent, Objective> ();
 		//TODO
 		public Resource movement;
@@ -36,18 +89,19 @@ namespace CSD
 		public float moveSpeed=5f;
 		public float eatSpeed=1f;
 		public PositionComponent targetFood;
+		public AI brain;
 
 		//TODO maybe add convenience for tracking resources in derived events
-		public AgentComponent () : base()
+		public AgentComponent (AI brain) : base()
 		{
+			this.brain = brain;
 			movement = new Resource("Movement", this);
 			Activate ();
 		}
 		//for now we can just use these updates to simulate things and have the simulation speed be pausable and change
 		public override void Update(float time){
-
 			UpdateObjectives ();
-
+			/*
 			if (objectives.Count==0) {
 				List<PositionComponent> foods = ProceduralWorldSimulator.instance.foods;
 				// AI goes here.
@@ -75,7 +129,7 @@ namespace CSD
 					Debug.Log ("Starting objective to eat food at "+targetFood.position);
 					objectives.Add (new FullySpecifiedObjective (new EatEvent (this, targetFood)));
 				}
-			}
+			}*/
 			PruneEvents ();
 		}
 
@@ -84,8 +138,10 @@ namespace CSD
 			foreach (var entry in action2Objective) {
 				if (entry.Key.IsComplete ())
 					completedEvents.Add (entry.Key);
-				if (entry.Value.IsComplete ())
-					objectives.Remove (entry.Value);
+				if (entry.Value.IsComplete ()) {
+					brain.NotifyOfCompleteObjective (entry.Value);
+					//objectives.Remove (entry.Value);
+				}
 			}
 			foreach (var action in completedEvents) {
 				action2Objective.Remove (action);
@@ -94,7 +150,7 @@ namespace CSD
 
 		//TODO modify this to look over the list of the top actions for each objective not just the best action
 		public void UpdateObjectives(){
-			RankObjectives ();
+			List<Objective> objectives = brain.GetSortedObjectives ();
 			while (HasAvailableResources()&&HasDoableActions()) {
 				foreach (var objective in objectives) {
 					if(action2Objective.ContainsValue(objective))
@@ -114,11 +170,6 @@ namespace CSD
 			//ProceduralWorldSimulator.instance.ongoingEvents.Add (action);
 		}
 
-		public void RankObjectives(){
-			//TODO rank objectives by priority and availability of resources and activity inertia
-			objectives.Sort ();
-		}
-
 		private bool HasAvailableResources(){
 			//TODO handle more general set of resources for this agent
 			return IsResourceAvailable(movement);
@@ -129,7 +180,8 @@ namespace CSD
 		}
 
 		private bool HasDoableActions(){
-			foreach (var objective in objectives) {
+			List<Objective> brainObjectives = brain.GetSortedObjectives ();
+			foreach (var objective in brainObjectives) {
 				if(action2Objective.ContainsValue(objective))
 					continue;
 				EventComponent action = GetBestDoableAction (objective);
