@@ -100,36 +100,7 @@ namespace CSD
 		}
 		//for now we can just use these updates to simulate things and have the simulation speed be pausable and change
 		public override void Update(float time){
-			UpdateObjectives ();
-			/*
-			if (objectives.Count==0) {
-				List<PositionComponent> foods = ProceduralWorldSimulator.instance.foods;
-				// AI goes here.
-
-				if (UnityEngine.Random.value > .5) {
-					// Inventory.
-					InventoryComponent inventoryComponent = GetEntity().GetComponent<InventoryComponent>();
-					if (!inventoryComponent.haulingSlot.IsFree()) {
-						// Drop it.
-						objectives.Add (new FullySpecifiedObjective (new DropEvent(inventoryComponent, inventoryComponent.haulingSlot)));
-						Debug.Log("Starting objective to drop hauled item");
-					} else {
-						// Pick something up.
-						if (foods.Count == 0)
-							return;
-						var targetFood = foods [UnityEngine.Random.Range (0, foods.Count - 1)];
-						Debug.Log ("Starting objective to pick up food at "+targetFood.position);
-						objectives.Add (new FullySpecifiedObjective (new PickUpEvent (inventoryComponent, targetFood.GetEntity().GetComponent<CarriableComponent> ())));
-					}
-				} else {
-					// Eating.
-					if (foods.Count == 0)
-						return;
-					var targetFood = foods [UnityEngine.Random.Range (0, foods.Count - 1)];
-					Debug.Log ("Starting objective to eat food at "+targetFood.position);
-					objectives.Add (new FullySpecifiedObjective (new EatEvent (this, targetFood)));
-				}
-			}*/
+			ChooseNewActions ();
 			PruneEvents ();
 		}
 
@@ -149,7 +120,7 @@ namespace CSD
 		}
 
 		//TODO modify this to look over the list of the top actions for each objective not just the best action
-		public void UpdateObjectives(){
+		public void ChooseNewActions(){
 			List<Objective> objectives = brain.GetSortedObjectives ();
 			while (HasAvailableResources()&&HasDoableActions()) {
 				foreach (var objective in objectives) {
