@@ -6,6 +6,7 @@ using CSD;
 
 public class UnityMeshComponent : MonoBehaviour, IComponent {
 	private IEntity entity;
+	public bool isUnderDirectControl=false;
 
 	// Use this for initialization
 	void Start () {
@@ -15,11 +16,23 @@ public class UnityMeshComponent : MonoBehaviour, IComponent {
 	// Update is called once per frame
 	void Update () {
 		var positionComponent = entity.GetComponent<PositionComponent> ();
+		if (isUnderDirectControl) {
+			positionComponent.position = new Vector2 (transform.position.x, transform.position.z);
+			return;
+		}
 		if(positionComponent!=null)
 			transform.position = new Vector3(positionComponent.position.x, 0, positionComponent.position.y);
 		var plantComponent = entity.GetComponent<PlantComponent> ();
 		if (plantComponent != null)
 			transform.localScale = new Vector3 (plantComponent.size, plantComponent.size, plantComponent.size);
+	}
+
+	public void TakeControl(){
+		isUnderDirectControl = true;
+	}
+
+	public void ReleaseControl(){
+		isUnderDirectControl = false;
 	}
 
 	public IEntity GetEntity (){

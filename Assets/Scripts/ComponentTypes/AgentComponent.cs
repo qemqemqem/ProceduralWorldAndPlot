@@ -90,6 +90,7 @@ namespace CSD
 		public float eatSpeed=1f;
 		public PositionComponent targetFood;
 		public AI brain;
+		private bool isUnderPlayerControl=false;
 
 		//TODO maybe add convenience for tracking resources in derived events
 		public AgentComponent (AI brain) : base()
@@ -100,8 +101,23 @@ namespace CSD
 		}
 		//for now we can just use these updates to simulate things and have the simulation speed be pausable and change
 		public override void Update(float time){
+			if (isUnderPlayerControl)
+				return;
 			ChooseNewActions ();
 			PruneEvents ();
+		}
+
+		public void TakeControl(){
+			isUnderPlayerControl = true;
+			foreach (var entry in action2Objective) {
+				//entry.Key.IsComplete TODO exit the action
+				brain.NotifyOfCompleteObjective (entry.Value);
+			}
+			action2Objective.Clear ();
+		}
+
+		public void ReleaseControl(){
+			isUnderPlayerControl = false;
 		}
 
 		public void PruneEvents(){

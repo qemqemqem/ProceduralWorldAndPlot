@@ -2,12 +2,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using InControl;
 
 namespace CSD{
 	public class ProceduralWorldSimulator : MonoBehaviour {
 		public static ProceduralWorldSimulator instance;
 		public List<PositionComponent> foods = new List<PositionComponent> ();
 		private static EntityManager manager = new EntityManager();
+
+
 
 		// Use this for initialization
 		void Start () {
@@ -68,6 +71,7 @@ namespace CSD{
 				person.AddComponent (agent);
 				person.AddComponent (new InventoryComponent());
 				ViewTest.AddEntity(person);
+				ViewTest.RegisterControllableAgent (person);
 			}
 		}
 
@@ -76,5 +80,8 @@ namespace CSD{
 			string[] prefixes = {"Kla", "Len", "Sp", "Mrik", "Lam", "Kdor", "Blip", "Coor", "Smat", "Smo"};
 			return prefixes[UnityEngine.Random.Range (0, prefixes.Length - 1)]+suffixes [UnityEngine.Random.Range (0, suffixes.Length - 1)]+"o";
 		}
+
+
+
 	}
 }

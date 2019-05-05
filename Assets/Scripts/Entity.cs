@@ -8,6 +8,7 @@ namespace CSD{
 		List<T> GetComponents<T>() where T : IComponent;
 		bool AddComponent<T> (T component) where T :IComponent;
 		bool IsDestroyed();
+		bool HasComponent<T> () where T : IComponent;
 		void SetDestroyed(bool destroyed);
 	}
 
@@ -26,6 +27,10 @@ namespace CSD{
 
 		public Entity(){
 			EntityManager.RegisterEntity (this);
+		}
+
+		public bool HasComponent<T>() where T : IComponent{
+			return GetComponent<T> () != null;
 		}
 
 		public T GetComponent<T>() where T : IComponent{
