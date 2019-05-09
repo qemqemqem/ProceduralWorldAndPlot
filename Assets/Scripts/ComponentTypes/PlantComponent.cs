@@ -47,7 +47,7 @@ namespace CSD
 				offspring.AddComponent (offspringPlant);
 				offspring.AddComponent (new CarriableComponent ());
 				ProceduralWorldSimulator.instance.foods.Add (offspringPos);
-				ViewTest.AddEntity (offspring);
+				UnityView.AddEntity (offspring);
 			}
 		}
 	}

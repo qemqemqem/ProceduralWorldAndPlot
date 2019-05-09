@@ -7,6 +7,7 @@ using CSD;
 public class UnityMeshComponent : MonoBehaviour, IComponent {
 	private IEntity entity;
 	public bool isUnderDirectControl=false;
+	public Resource position = new Resource();
 
 	// Use this for initialization
 	void Start () {
@@ -14,7 +15,7 @@ public class UnityMeshComponent : MonoBehaviour, IComponent {
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	void FixedUpdate () {
 		var positionComponent = entity.GetComponent<PositionComponent> ();
 		if (isUnderDirectControl) {
 			positionComponent.position = new Vector2 (transform.position.x, transform.position.z);

@@ -228,10 +228,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 458844763}
-  - component: {fileID: 458844762}
   - component: {fileID: 458844764}
   - component: {fileID: 458844766}
   - component: {fileID: 458844765}
+  - component: {fileID: 458844762}
   m_Layer: 0
   m_Name: ViewDebugger
   m_TagString: Untagged
@@ -247,11 +247,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 458844761}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a886e9bdeb7ff4941a8ea787569e9416, type: 3}
+  m_Script: {fileID: 11500000, guid: 5d3fcd9590bb65b40935c4421e0aefe8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   topDownActionCam: {fileID: 534669906}
   prototype: {fileID: 1752045299005830, guid: ff9adafe16db59b41ba460891ccfeef3, type: 2}
+  cameraPrototype: {fileID: 1919821991}
 --- !u!4 &458844763
 Transform:
   m_ObjectHideFlags: 0

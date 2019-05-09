@@ -94,7 +94,7 @@ namespace CSD
 
 		public override void Initialize ()
 		{
-			EntityManager.RegisterUpdatable (this);
+			ProceduralWorldSimulator.RegisterUpdatable (this);
 			mover.movement.user = this;
 			this.maxDist = Vector2.Distance (desiredPosition, moverPosition.position);
 			Activate ();

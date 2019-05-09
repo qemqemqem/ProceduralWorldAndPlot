@@ -8,7 +8,7 @@ namespace CSD{
 	public class ProceduralWorldSimulator : MonoBehaviour {
 		public static ProceduralWorldSimulator instance;
 		public List<PositionComponent> foods = new List<PositionComponent> ();
-		private static EntityManager manager = new EntityManager();
+		private EntityManager manager = new EntityManager();
 
 
 
@@ -37,13 +37,6 @@ namespace CSD{
 			//TODO implement this
 		}
 
-
-		public void DispalyOptionsToPlayer(){
-			//TODO populate some text of actions/things the player can interact with
-			//TODO place buttons next to text
-			//TODO label actions with key strokes
-		}
-
 		private void SetupWorld(){
 			int numPeople = 5;
 			int mapSize = 50;
@@ -57,7 +50,7 @@ namespace CSD{
 				PlantComponent plant = new PlantComponent ();
 				food.AddComponent (plant);
 				food.AddComponent (new CarriableComponent ());
-				ViewTest.AddEntity(food);
+				UnityView.AddEntity(food);
 			}
 			for (int i = 0; i < numPeople; ++i) {
 				Entity person = new Entity ();
@@ -70,8 +63,8 @@ namespace CSD{
 				agent.name = GetRandomName();
 				person.AddComponent (agent);
 				person.AddComponent (new InventoryComponent());
-				ViewTest.AddEntity(person);
-				ViewTest.RegisterControllableAgent (person);
+				UnityView.AddEntity(person);
+				UnityView.RegisterControllableAgent (person);
 			}
 		}
 
@@ -79,6 +72,18 @@ namespace CSD{
 			string[] suffixes = {"orpo", "azar", "ubari", "'adul","ule","ile","'s","opa"};
 			string[] prefixes = {"Kla", "Len", "Sp", "Mrik", "Lam", "Kdor", "Blip", "Coor", "Smat", "Smo"};
 			return prefixes[UnityEngine.Random.Range (0, prefixes.Length - 1)]+suffixes [UnityEngine.Random.Range (0, suffixes.Length - 1)]+"o";
+		}
+
+		public static void RegisterEntity(Entity entity){
+			if (instance == null)
+				return;
+			instance.manager.RegisterEntity (entity);
+		}
+
+		public static void RegisterUpdatable(UpdateableComponent component){
+			if (instance == null)
+				return;
+			instance.manager.RegisterUpdatable (component);
 		}
 
 

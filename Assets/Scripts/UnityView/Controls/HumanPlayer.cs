@@ -10,7 +10,7 @@ namespace CSD
 	public enum ControlState{ACTION_GAME, BUILDING_GAME};
 
 	public class HumanPlayer{
-		private ViewTest view;
+		private UnityView view;
 		private InputDevice inputDevice;
 		public ControllableHomonid homonid;
 		private TopDownActions actions;
@@ -18,9 +18,10 @@ namespace CSD
 		private ControlState state = ControlState.BUILDING_GAME;
 		private BuildCursor cursor;
 		private bool following = false;
+		private float zoomSpeedPerSecond = 4f;
 
 
-		public HumanPlayer(ViewTest view, InputDevice inputDevice){
+		public HumanPlayer(UnityView view, InputDevice inputDevice){
 			this.view = view;
 			this.inputDevice = inputDevice;
 			actions = TopDownActions.CreateWithJoystickBindings();
@@ -29,7 +30,8 @@ namespace CSD
 			CameraFocus focus = cursorObject.AddComponent<CameraFocus> ();
 			focus.weight = 1f;
 			cursor = cursorObject.AddComponent<BuildCursor> ();
-			ViewTest.viewer.topDownActionCam.SetFocus (cursor.gameObject.GetComponent<CameraFocus>());
+			//TODO need to make this use the camera for the player
+			UnityView.viewer.topDownActionCam.SetFocus (cursor.gameObject.GetComponent<CameraFocus>());
 			cursor.AssertControl (actions, this);
 		}
 
@@ -62,12 +64,12 @@ namespace CSD
 				return;
 			if (actions.Back.WasPressed) {
 				//TODO release should go through view so we can make the entity resume it's previous behavior
-				ViewTest.ReleaseHumanoid(this);
+				UnityView.ReleaseHumanoid(this);
 				homonid.ReleaseControl ();
 				state = ControlState.BUILDING_GAME;
 				cursor.transform.position = homonid.transform.position;
 				cursor.AssertControl (actions, this);
-				ViewTest.viewer.topDownActionCam.SetFocus (cursor.gameObject.GetComponent<CameraFocus>());
+				UnityView.viewer.topDownActionCam.SetFocus (cursor.gameObject.GetComponent<CameraFocus>());
 				following = true;
 			}
 		}
@@ -76,13 +78,13 @@ namespace CSD
 			
 			if (following) {
 				if (cursor != null && entity != null) {
-					var homonid = ViewTest.GetHomonid (entity);
+					var homonid = UnityView.GetHomonid (entity);
 					if(homonid!=null)
 						cursor.transform.position = homonid.transform.position;
 				}
 				if (actions.Move.Vector.magnitude>1E-4) {
 					following = false;
-					ViewTest.viewer.topDownActionCam.SetFocus (cursor.gameObject.GetComponent<CameraFocus>());
+					UnityView.viewer.topDownActionCam.SetFocus (cursor.gameObject.GetComponent<CameraFocus>());
 				}
 			}
 
@@ -90,14 +92,14 @@ namespace CSD
 				if (entity != null) {
 					state = ControlState.ACTION_GAME;
 					cursor.ReleaseControl ();
-					ViewTest.ControlHumanoid (this);
+					UnityView.ControlHumanoid (this);
 				}
 			}
 			if (actions.SpeechUp.WasPressed) {
 				if (entity != null) {
 					state = ControlState.ACTION_GAME;
 					cursor.ReleaseControl ();
-					ViewTest.ControlHumanoid (this);
+					UnityView.ControlHumanoid (this);
 				}
 			}
 			if (actions.SpeechLeft.WasPressed) {
@@ -107,16 +109,36 @@ namespace CSD
 				//next entity, move to and lock on until the camera is panned
 			}
 			if (actions.Primary.WasPressed) {
-				entity = ViewTest.GetNextEntity (entity);
-				ViewTest.FocusCameraOn (entity);
+				entity = UnityView.GetNextEntity (entity);
+				UnityView.FocusCameraOn (entity);
 				following = true;
 			}
 
 			if (actions.Secondary.WasPressed) {
-				entity = ViewTest.GetPrevEntity (entity);
-				ViewTest.FocusCameraOn (entity);
+				entity = UnityView.GetPrevEntity (entity);
+				UnityView.FocusCameraOn (entity);
 				following = true;
 			}
+
+			if (actions.TriggerAction) {
+				TopDownActionCamera cam = UnityView.GetCamera (this);
+				if (cam == null)
+					return;
+				cam.Zoom (1f / GetZoom ());
+				
+			}
+
+			if (actions.LockOn) {
+				TopDownActionCamera cam = UnityView.GetCamera (this);
+				if (cam == null)
+					return;
+				cam.Zoom (GetZoom ());
+
+			}
+		}
+
+		private float GetZoom(){
+			return Mathf.Pow (zoomSpeedPerSecond, Time.deltaTime);
 		}
 
 		bool JoinButtonWasPressedOnListener( TopDownActions actions )

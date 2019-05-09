@@ -26,7 +26,7 @@ namespace CSD{
 		public void SetDestroyed(bool destroyed) {isDestroyed = destroyed;}
 
 		public Entity(){
-			EntityManager.RegisterEntity (this);
+			ProceduralWorldSimulator.RegisterEntity (this);
 		}
 
 		public bool HasComponent<T>() where T : IComponent{
@@ -107,11 +107,11 @@ namespace CSD{
 		}
 
 		public void Activate(){
-			EntityManager.RegisterUpdatable(this);
+			ProceduralWorldSimulator.RegisterUpdatable(this);
 		}
 
 		public UpdateableComponent (IEntity entity) : base (entity) {
-			EntityManager.RegisterUpdatable (this);
+			ProceduralWorldSimulator.RegisterUpdatable (this);
 		}
 
 		public virtual void Update(float time){

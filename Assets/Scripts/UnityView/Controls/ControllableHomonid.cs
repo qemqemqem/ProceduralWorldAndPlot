@@ -37,7 +37,8 @@ namespace CSD
 	public enum LOOK_MODE{TARGET_LOCK, FREE_LOOK, MOVE_TO_TURN_ARC, MOVE_TO_TURN_SPEED};
 	public enum MOVE_MODE{FREE_MOVE, FORWARD_BACKWARD, KEANU_SPEED, LOCKED};
 
-	public class ControllableHomonid : MonoBehaviour, ICameraFocus {
+	public class ControllableHomonid : MonoBehaviour, ICameraFocus, IComponent {
+		private IEntity entity;
 		public List<Resource> resources = new List<Resource>();
 		public Transform characterFocus;
 		public Transform predictedPosition;
@@ -88,8 +89,8 @@ namespace CSD
 				focus.mustStayOnScreen = true;
 				characterFocus.position = transform.position;
 			}
-			if (ViewTest.viewer != null && ViewTest.viewer.topDownActionCam != null) {
-				ViewTest.viewer.topDownActionCam.AddFocus (characterFocus.gameObject.GetComponent<CameraFocus> ());
+			if (UnityView.viewer != null && UnityView.viewer.topDownActionCam != null) {
+				UnityView.viewer.topDownActionCam.AddFocus (characterFocus.gameObject.GetComponent<CameraFocus> ());
 			}
 		}
 
@@ -279,6 +280,17 @@ namespace CSD
 		}
 		public float GetRadius(){
 			return 1f;
+		}
+
+		public IEntity GetEntity (){
+			return entity;
+		}
+
+		public bool SetEntity(IEntity entity){
+			if (this.entity != null)
+				return false;
+			this.entity = entity;
+			return true;
 		}
 	}
 }

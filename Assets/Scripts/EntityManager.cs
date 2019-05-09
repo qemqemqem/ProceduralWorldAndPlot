@@ -6,15 +6,12 @@ namespace CSD
 {
 	public class EntityManager
 	{
-		private static EntityManager instance;
-
 		//TODO handle scheduling and honoring secondsPerUpdate
 		public List<UpdateableComponent> componentsToUpdate = new List<UpdateableComponent>();
 		public List<Entity> entities = new List<Entity>();
 
 		public EntityManager ()
 		{
-			instance = this;
 		}
 
 		public void Update(float deltaTime){
@@ -29,12 +26,12 @@ namespace CSD
 			componentsToUpdate.ForEach(updateable => updateable.Update(deltaTime));
 		}
 
-		public static void RegisterEntity(Entity entity){
-			instance.entities.Add (entity);
+		public void RegisterEntity(Entity entity){
+			entities.Add (entity);
 		}
 
-		public static void RegisterUpdatable(UpdateableComponent component){
-			instance.componentsToUpdate.Add (component);
+		public void RegisterUpdatable(UpdateableComponent component){
+			componentsToUpdate.Add (component);
 		}
 	}
 }

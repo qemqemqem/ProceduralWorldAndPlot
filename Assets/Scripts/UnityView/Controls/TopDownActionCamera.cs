@@ -91,4 +91,11 @@ public class TopDownActionCamera : MonoBehaviour {
 		average=average*(1f / totalWeight);
 		return average;
 	}
+
+	public void Zoom(float ammount){
+		float distance = transform.localPosition.magnitude;
+		Vector3 newLocalPosition = (transform.localPosition * ammount);
+		transform.localPosition = newLocalPosition;
+	}
+
 }
