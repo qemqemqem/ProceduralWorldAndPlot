@@ -9,6 +9,7 @@ namespace CSD{
 		List<T> GetComponents<T>() where T : IComponent;
 		bool AddComponent<T> (T component) where T :IComponent;
 		bool IsDestroyed();
+		bool HasComponent<T> () where T : IComponent;
 		void SetDestroyed(bool destroyed);
 	}
 
@@ -26,7 +27,11 @@ namespace CSD{
 		public void SetDestroyed(bool destroyed) {isDestroyed = destroyed;}
 
 		public Entity(){
-			EntityManager.RegisterEntity (this);
+			ProceduralWorldSimulator.RegisterEntity (this);
+		}
+
+		public bool HasComponent<T>() where T : IComponent{
+			return GetComponent<T> () != null;
 		}
 
 		public T GetComponent<T>() where T : IComponent{
@@ -109,11 +114,11 @@ namespace CSD{
 		}
 
 		public void Activate(){
-			EntityManager.RegisterUpdatable(this);
+			ProceduralWorldSimulator.RegisterUpdatable(this);
 		}
 
 		public UpdateableComponent (IEntity entity) : base (entity) {
-			EntityManager.RegisterUpdatable (this);
+			ProceduralWorldSimulator.RegisterUpdatable (this);
 		}
 
 		public virtual void Update(float time){

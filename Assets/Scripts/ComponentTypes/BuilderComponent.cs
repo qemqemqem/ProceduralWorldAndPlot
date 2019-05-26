@@ -85,7 +85,7 @@ namespace CSD
 			posCom.position = pos;
 			foundation.AddComponent (posCom);
 			foundation.AddComponent (building);
-			ViewTest.AddEntity(foundation);
+			UnityView.AddEntity(foundation);
 			Debug.Log("BULDING: foundation update");
 		}
 		public override bool IsComplete() {

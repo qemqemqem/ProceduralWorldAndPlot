@@ -14,8 +14,9 @@ namespace CSD
 			plant.AddComponent (plantPos);
 			plant.AddComponent (plantPlant);
 			plant.AddComponent (new CarriableComponent ());
+			ProceduralWorldSimulator.instance.positionManager.ObjectSpawnedAt (plant, position);
 			ProceduralWorldSimulator.instance.foods.Add (plantPos);
-			ViewTest.AddEntity (plant);
+			UnityView.AddEntity (plant);
 			return plant;
 		}
 	}
