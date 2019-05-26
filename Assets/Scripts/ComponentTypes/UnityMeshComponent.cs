@@ -21,8 +21,12 @@ public class UnityMeshComponent : MonoBehaviour, IComponent {
 			positionComponent.position = new Vector2 (transform.position.x, transform.position.z);
 			return;
 		}
-		if(positionComponent!=null)
-			transform.position = new Vector3(positionComponent.position.x, 0, positionComponent.position.y);
+		if (positionComponent != null) {
+			if (float.IsNaN (positionComponent.position.x)) {
+				Mathf.Sqrt (2f);
+			}
+			transform.position = new Vector3 (positionComponent.position.x, 0, positionComponent.position.y);
+		}
 		var plantComponent = entity.GetComponent<PlantComponent> ();
 		if (plantComponent != null)
 			transform.localScale = new Vector3 (plantComponent.size, plantComponent.size, plantComponent.size);

@@ -87,6 +87,8 @@ namespace CSD
 		{
 			this.mover = mover;
 			this.moverPosition = mover.GetEntity ().GetComponent<PositionComponent> ();
+			if (float.IsNaN(desiredPosition.x))
+				Debug.Log ("SUPER UNCOOL");
 			this.desiredPosition = desiredPosition;
 			this.moveSpeed = moveSpeed;
 			this.maxDist = Vector2.Distance (desiredPosition, moverPosition.position);

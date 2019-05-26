@@ -89,8 +89,9 @@ namespace CSD
 				focus.mustStayOnScreen = true;
 				characterFocus.position = transform.position;
 			}
-			if (UnityView.viewer != null && UnityView.viewer.topDownActionCam != null) {
-				UnityView.viewer.topDownActionCam.AddFocus (characterFocus.gameObject.GetComponent<CameraFocus> ());
+			if (player != null) {
+				//TODO this is a problem right here....
+				player.camera.AddFocus (characterFocus.gameObject.GetComponent<CameraFocus> ());
 			}
 		}
 

@@ -7,7 +7,7 @@ namespace CSD
 	public class PlantComponent : UpdateableComponent
 	{
 		public float size = 1.0f;
-		public float growthRate =.63f;
+		public float growthRate =.45f;
 		public float minSize = 1.0f;
 		public float maxSize = 4.0f;
 		public int numOffspringMin = 1;
@@ -38,14 +38,18 @@ namespace CSD
 			var position = GetEntity ().GetComponent<PositionComponent> ();
 			for (int i = 0; i < numOffspring;  ++i) {
 				Vector3 offsetDir = UnityEngine.Random.onUnitSphere;
-				var offspringPos = new PositionComponent ();
 				var offsetMagnitude = UnityEngine.Random.value*spreadRadius;
-				offspringPos.position = new Vector2 (position.position.x + offsetDir.x*offsetMagnitude, position.position.y + offsetDir.y*offsetMagnitude);
+				var pos = ProceduralWorldSimulator.instance.positionManager.closestEmpty (new Vector3 (position.position.x + offsetDir.x * offsetMagnitude, 0f, position.position.y + offsetDir.y * offsetMagnitude));
+				if (PositionManager.IsBogus(pos))
+					continue;
+				var offspringPos = new PositionComponent ();
+				offspringPos.position = pos;
 				var offspringPlant = new PlantComponent ();
 				Entity offspring = new Entity ();
 				offspring.AddComponent (offspringPos);
 				offspring.AddComponent (offspringPlant);
 				offspring.AddComponent (new CarriableComponent ());
+				ProceduralWorldSimulator.instance.positionManager.ObjectSpawnedAt (offspring, pos);
 				ProceduralWorldSimulator.instance.foods.Add (offspringPos);
 				UnityView.AddEntity (offspring);
 			}

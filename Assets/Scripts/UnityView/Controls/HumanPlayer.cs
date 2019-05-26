@@ -13,6 +13,7 @@ namespace CSD
 		private UnityView view;
 		private InputDevice inputDevice;
 		public ControllableHomonid homonid;
+		public TopDownActionCamera camera;
 		private TopDownActions actions;
 		public Entity entity;
 		private ControlState state = ControlState.BUILDING_GAME;
@@ -21,7 +22,7 @@ namespace CSD
 		private float zoomSpeedPerSecond = 4f;
 
 
-		public HumanPlayer(UnityView view, InputDevice inputDevice){
+		public HumanPlayer(UnityView view, InputDevice inputDevice, TopDownActionCamera camera){
 			this.view = view;
 			this.inputDevice = inputDevice;
 			actions = TopDownActions.CreateWithJoystickBindings();
@@ -30,8 +31,8 @@ namespace CSD
 			CameraFocus focus = cursorObject.AddComponent<CameraFocus> ();
 			focus.weight = 1f;
 			cursor = cursorObject.AddComponent<BuildCursor> ();
-			//TODO need to make this use the camera for the player
-			UnityView.viewer.topDownActionCam.SetFocus (cursor.gameObject.GetComponent<CameraFocus>());
+			this.camera = camera;
+			camera.SetFocus (cursor.gameObject.GetComponent<CameraFocus>());
 			cursor.AssertControl (actions, this);
 		}
 
@@ -110,13 +111,15 @@ namespace CSD
 			}
 			if (actions.Primary.WasPressed) {
 				entity = UnityView.GetNextEntity (entity);
-				UnityView.FocusCameraOn (entity);
+				//TODO fix this
+				UnityView.FocusCameraOn (entity, camera);
 				following = true;
 			}
 
 			if (actions.Secondary.WasPressed) {
 				entity = UnityView.GetPrevEntity (entity);
-				UnityView.FocusCameraOn (entity);
+				//TODO fix this
+				UnityView.FocusCameraOn (entity, camera);
 				following = true;
 			}
 
