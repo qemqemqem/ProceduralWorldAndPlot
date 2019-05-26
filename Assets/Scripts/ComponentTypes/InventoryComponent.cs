@@ -22,7 +22,7 @@ namespace CSD
 
 	public class CarriableComponent : Component
 	{
-
+		public InventoryComponent carrier;
 	}
 
 	public class PickUpEvent : InstantEvent
@@ -38,6 +38,7 @@ namespace CSD
 		public override void Initialize () {
 			if (carrier.haulingSlot.IsFree()) {
 				carrier.haulingSlot.item = carried;
+				carried.carrier = carrier;
 			}
 		}
 	}
@@ -53,6 +54,8 @@ namespace CSD
 		}
 
 		public override void Initialize () {
+			if (slot.item.carrier == carrier)
+				slot.item.carrier = null;
 			slot.item = null;
 		}
 	}

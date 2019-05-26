@@ -68,6 +68,8 @@ namespace CSD
 						if (foods.Count == 0)
 							return;
 						var targetFood = foods [UnityEngine.Random.Range (0, foods.Count - 1)];
+						if (targetFood.GetEntity().GetComponent<CarriableComponent>().carrier != null)
+							return;
 						Debug.Log ("Starting objective to pick up food at "+targetFood.position);
 						objectives.Add (new FullySpecifiedObjective (new PickUpEvent (inventoryComponent, targetFood.GetEntity().GetComponent<CarriableComponent> ())));
 					}
