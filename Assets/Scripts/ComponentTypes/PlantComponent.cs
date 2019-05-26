@@ -40,14 +40,7 @@ namespace CSD
 				Vector3 offsetDir = UnityEngine.Random.onUnitSphere;
 				var offspringPos = new PositionComponent ();
 				var offsetMagnitude = UnityEngine.Random.value*spreadRadius;
-				offspringPos.position = new Vector2 (position.position.x + offsetDir.x*offsetMagnitude, position.position.y + offsetDir.y*offsetMagnitude);
-				var offspringPlant = new PlantComponent ();
-				Entity offspring = new Entity ();
-				offspring.AddComponent (offspringPos);
-				offspring.AddComponent (offspringPlant);
-				offspring.AddComponent (new CarriableComponent ());
-				ProceduralWorldSimulator.instance.foods.Add (offspringPos);
-				ViewTest.AddEntity (offspring);
+				ThingCreator.CreatePlant(new Vector2 (position.position.x + offsetDir.x*offsetMagnitude, position.position.y + offsetDir.y*offsetMagnitude));
 			}
 		}
 	}

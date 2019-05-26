@@ -2,6 +2,7 @@
 
 namespace CSD{
 
+	// Is this interface useful?
 	public interface IEntity{
 		T GetComponent<T>() where T : IComponent;
 		T GetComponent<T>(IComparer<T> comparator) where T : IComponent;
@@ -78,9 +79,12 @@ namespace CSD{
 	}
 
 	public class Component : IComponent{
-		private IEntity entity;
-		public IEntity GetEntity (){
+		public IEntity entity; // Can this just be an Entity?
+		public IEntity GetIEntity (){
 			return entity;
+		}
+		public IEntity GetEntity (){
+			return (Entity)entity;
 		}
 		public bool SetEntity(IEntity entity){
 			if (this.entity != null)
@@ -95,6 +99,9 @@ namespace CSD{
 			entity.AddComponent(this);
 		}
 		public Component () {}
+		public bool HasEntity () {
+			return entity != null;
+		}
 	}
 
 	public class UpdateableComponent : Component{

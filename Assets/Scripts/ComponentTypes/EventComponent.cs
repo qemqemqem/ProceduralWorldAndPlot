@@ -12,23 +12,39 @@ namespace CSD
 		public float range;
 		public PositionComponent rangeTo;
 		public PositionComponent actor;
+		public Vector2 rangeToPos;
+
+		// TODO switch target and actor so they make sense, actor first.
 		public RangeRequirement (PositionComponent target, PositionComponent actor, float range){
 			this.range = range;
 			this.rangeTo = target;
 			this.actor = actor;
 		}
+		public RangeRequirement (Vector2 targetPos, PositionComponent actor, float range){
+			this.range = range;
+			this.actor = actor;
+			this.rangeToPos = targetPos;
+		}
 		public override bool IsComplete ()
 		{
-			if (rangeTo == null || actor == null || Vector2.Distance (rangeTo.position, actor.position) <= range)
-				return true;
-			else
-				return false;
+			if (rangeTo != null) {
+				if (actor == null || Vector2.Distance (rangeTo.position, actor.position) <= range)
+					return true;
+			} else if (rangeToPos != null) {
+				if (actor == null || Vector2.Distance (rangeToPos, actor.position) <= range)
+					return true;
+			}
+			return false;
 		}
 		public override EventComponent GetWayToDo () {
 			var actorAgent = actor.GetEntity ().GetComponent<AgentComponent> ();
 			if (actorAgent == null)
 				return null;
-			return new MoveEvent (actorAgent, rangeTo.position, actorAgent.moveSpeed);
+			if (rangeTo != null)
+				return new MoveEvent (actorAgent, rangeTo.position, actorAgent.moveSpeed);
+			if (rangeToPos != null)
+				return new MoveEvent (actorAgent, rangeToPos, actorAgent.moveSpeed);
+			return null;
 		}
 	}
 
@@ -208,65 +224,8 @@ namespace CSD
 
 		public override List<Requirement> GetRequirments(){
 			List<Requirement> requirements = new List<Requirement> ();
-			requirements.Add (new RangeRequirement (food, eater.GetEntity().GetComponent<PositionComponent>(), .1f));
+			requirements.Add (new RangeRequirement (food, eater.GetEntity().GetComponent<PositionComponent>(), 0.1f));
 			return requirements;
 		}
 	}
-
-	/*
-	public class GrowEvent : EventComponent
-	{
-		private PlantComponent plant;
-		private float progress;
-
-		public GrowEvent (PlantComponent plant)
-		{
-			this.plant = plant;
-		}
-
-		public override void Initialize ()
-		{
-			plant.substance.user = this;
-			progress = plant.size/plant.maxSize/plant.growthRate;
-		}
-
-		public override List<Resource> GetRequiredResources(){
-			List<Resource> resources = new List<Resource> ();
-			resources.Add (plant.substance);
-			return resources;
-		}
-
-		public override string GetName(){
-			return "Grow";
-		}
-
-		public override string GetDescription(){
-			return plant.ToString()+" is growing";
-		}
-
-		//return true when the event is complete and is ready to be destroyed
-		public override void Update(float time){
-			if (plant == null|| progress >= 1.0f || plant.substance.user!=this)
-				progress = 1.0f;
-			else {
-				plant.size = Mathf.Max (Mathf.Min (plant.size+time*plant.growthRate, plant.maxSize), plant.minSize);
-				progress = Mathf.Min (plant.size/plant.maxSize);
-			}
-			if (IsComplete()) {
-				if(plant.size==plant.maxSize)
-					plant.SpawnOffspring ();
-				if(plant.size==plant.maxSize)
-					plant.GetEntity ().SetDestroyed (true);
-			}
-		}
-
-		public override bool IsComplete(){
-			return progress >= 1.0f;
-		}
-
-		public override List<Requirement> GetRequirments(){
-			List<Requirement> requirements = new List<Requirement> ();
-			return requirements;
-		}
-	}*/
 }

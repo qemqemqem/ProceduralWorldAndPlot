@@ -52,7 +52,11 @@ namespace CSD
 				List<PositionComponent> foods = ProceduralWorldSimulator.instance.foods;
 				// AI goes here.
 
-				if (UnityEngine.Random.value > .5) {
+				if (UnityEngine.Random.value > 0.52) {
+					// Building.
+					objectives.Add(new BuildObjective(this, new Vector2(UnityEngine.Random.Range(-10, 10), UnityEngine.Random.Range(-10, 10))));
+					Debug.Log("Starting objective to build something");
+				} else if (UnityEngine.Random.value > .5) {
 					// Inventory.
 					InventoryComponent inventoryComponent = GetEntity().GetComponent<InventoryComponent>();
 					if (!inventoryComponent.haulingSlot.IsFree()) {
