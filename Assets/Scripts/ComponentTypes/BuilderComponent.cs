@@ -79,7 +79,7 @@ namespace CSD
 			this.building = building;
 			this.pos = pos;
 		}
-		public override void Update(float time) {
+		public override void Tick(float time) {
 			Entity foundation = new Entity();
 			PositionComponent posCom = new PositionComponent();
 			posCom.position = pos;
@@ -108,7 +108,7 @@ namespace CSD
 			this.building = building;
 			this.resource = resource;
 		}
-		public override void Update(float time) {
+		public override void Tick(float time) {
 			resource.numSupplied += 1;
 			// TODO remove a thing held.
 		}
@@ -131,7 +131,7 @@ namespace CSD
 			this.builder = builder;
 			this.building = building;
 		}
-		public override void Update(float time) {
+		public override void Tick(float time) {
 			building.workDone += time;
 		}
 		public override bool IsComplete() {

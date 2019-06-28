@@ -18,6 +18,10 @@ namespace CSD{
 		bool SetEntity(IEntity entity);
 	}
 
+	public interface IUpdateable{
+		void Tick (float time);
+	}
+
 
 	public class Entity : IEntity {
 		private List<IComponent> components = new List<IComponent> ();
@@ -36,7 +40,7 @@ namespace CSD{
 
 		public T GetComponent<T>() where T : IComponent{
 			foreach (var component in components) {
-				if (component.GetType () == typeof(T))
+				if (component is T)//component.GetType () == typeof(T))
 					return (T)component;
 			}
 			return default(T);
@@ -64,12 +68,12 @@ namespace CSD{
 		}
 
 		public List<T> GetComponents<T>() where T : IComponent {
-			List<T> components = new List<T> ();
-			foreach (var component in components) {
-				if (component.GetType () == typeof(T))
-					components.Add ((T)component);
+			List<T> matchingComponents = new List<T> ();
+			foreach (var component in this.components) {
+				if (component is T)//.GetType () == typeof(T))
+					matchingComponents.Add ((T)component);
 			}
-			return components;
+			return matchingComponents;
 		}
 
 		public bool AddComponent<T> (T component) where T :IComponent{
@@ -109,7 +113,7 @@ namespace CSD{
 		}
 	}
 
-	public class UpdateableComponent : Component{
+	public class UpdateableComponent : Component, IUpdateable{
 		public UpdateableComponent () {
 		}
 
@@ -121,7 +125,7 @@ namespace CSD{
 			ProceduralWorldSimulator.RegisterUpdatable (this);
 		}
 
-		public virtual void Update(float time){
+		public virtual void Tick(float time){
 		}
 		public virtual double SecondsPerCall(){
 			return 1f;

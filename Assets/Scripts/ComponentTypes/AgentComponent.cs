@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace CSD
 {
+
 	public class AI : Component {
 		public List<Objective> objectives = new List<Objective> ();
 
@@ -106,7 +107,7 @@ namespace CSD
 			Activate ();
 		}
 		//for now we can just use these updates to simulate things and have the simulation speed be pausable and change
-		public override void Update(float time){
+		public override void Tick(float time){
 			if (isUnderPlayerControl)
 				return;
 			ChooseNewActions ();

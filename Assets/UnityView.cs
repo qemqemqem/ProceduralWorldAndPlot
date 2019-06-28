@@ -69,7 +69,8 @@ public class UnityView : MonoBehaviour {
 		entities.Add(entity);
 		GameObject display = GameObject.Instantiate(viewer.prototype);
 		UnityMeshComponent meshComponent = display.AddComponent<UnityMeshComponent>();
-		meshComponent.SetEntity (entity);
+		entity.AddComponent<UnityMeshComponent> (meshComponent);
+		//meshComponent.SetEntity (entity);
 		displaysMap[entity] = display;
 	}
 

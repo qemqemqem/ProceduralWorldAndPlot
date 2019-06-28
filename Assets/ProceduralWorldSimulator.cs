@@ -5,6 +5,9 @@ using UnityEngine;
 using InControl;
 
 namespace CSD{
+
+	//TODO clean up the simulation and view by making the action code only interact with one of them
+	//modify the world queries to standardize them in some way
 	public class ProceduralWorldSimulator : MonoBehaviour {
 		public static ProceduralWorldSimulator instance;
 		public List<PositionComponent> foods = new List<PositionComponent> ();
@@ -88,6 +91,7 @@ namespace CSD{
 			instance.manager.RegisterEntity (entity);
 		}
 
+		//TODO remove when we switch over to the tickable interface
 		public static void RegisterUpdatable(UpdateableComponent component){
 			if (instance == null)
 				return;

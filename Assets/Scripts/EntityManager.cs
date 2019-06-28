@@ -9,6 +9,8 @@ namespace CSD
 		//TODO handle scheduling and honoring secondsPerUpdate
 		public List<UpdateableComponent> componentsToUpdate = new List<UpdateableComponent>();
 		public List<Entity> entities = new List<Entity>();
+		public List<IUpdateable> updatables = new List<IUpdateable> ();
+
 
 		public EntityManager ()
 		{
@@ -23,7 +25,7 @@ namespace CSD
 			componentsToUpdate.RemoveAll (updatable => updatable.GetEntity ()!=null?
 				updatable.GetEntity ().IsDestroyed ():((EventComponent)updatable).IsComplete());
 			entities.RemoveAll (entity => entity.IsDestroyed ());
-			componentsToUpdate.ForEach(updateable => updateable.Update(deltaTime));
+			componentsToUpdate.ForEach(updateable => updateable.Tick(deltaTime));
 		}
 
 		public void RegisterEntity(Entity entity){

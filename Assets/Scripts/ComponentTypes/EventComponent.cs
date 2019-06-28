@@ -4,6 +4,27 @@ using UnityEngine;
 
 namespace CSD
 {
+	public interface IRequirementHolder {
+		List<Requirement> GetRequirments ();
+	}
+
+	public interface IWorldEvent : IComponent, IUpdateable, IRequirementHolder {
+		string GetName ();
+
+		string GetDescription ();
+
+		void Initialize ();
+
+		List<Resource> GetRequiredResources ();
+
+		void Tick();
+
+		bool IsComplete();
+
+		List<Requirement> GetRequirments ();
+	}
+
+
 	//TODO make resources use Requirements
 	public class Requirement : Objective {
 	}
@@ -40,14 +61,16 @@ namespace CSD
 			var actorAgent = actor.GetEntity ().GetComponent<AgentComponent> ();
 			if (actorAgent == null)
 				return null;
+			var components = actor.GetEntity ().GetComponents<IComponent> ();
 			if (rangeTo != null)
-				return new MoveEvent (actorAgent, rangeTo.position, actorAgent.moveSpeed);
+				return new MoveEvent (actorAgent.GetEntity().GetComponent<UnityMeshComponent>(), actorAgent, rangeTo.position, actorAgent.moveSpeed);
 			if (rangeToPos != null)
-				return new MoveEvent (actorAgent, rangeToPos, actorAgent.moveSpeed);
+				return new MoveEvent (actorAgent.GetEntity().GetComponent<UnityMeshComponent>(), actorAgent, rangeToPos, actorAgent.moveSpeed);
 			return null;
 		}
 	}
 
+	//TODO convert this to an interface so that unity components can also implement this
 	public class EventComponent : UpdateableComponent
 	{
 		public EventComponent() {
@@ -70,7 +93,7 @@ namespace CSD
 		}
 
 		//return true when the event is complete and is ready to be destroyed
-		public  override void Update(float time){
+		public  override void Tick(float time){
 			//TODO this is where we update things and generate effects
 		}
 
@@ -90,6 +113,12 @@ namespace CSD
 		}
 	}
 
+	public interface IPathfindingInterface{
+		void SetTarget (Vector2 position);
+		bool HasReachedDestination();
+		void Cancel();
+	}
+
 	public class MoveEvent : EventComponent
 	{
 		private AgentComponent mover;
@@ -98,9 +127,12 @@ namespace CSD
 		private float moveSpeed;
 		private float progress;
 		private float maxDist;
+		private IPathfindingInterface pc;
 
-		public MoveEvent (AgentComponent mover, Vector2 desiredPosition, float moveSpeed)
+
+		public MoveEvent (IPathfindingInterface pc, AgentComponent mover, Vector2 desiredPosition, float moveSpeed)
 		{
+			this.pc = pc;
 			this.mover = mover;
 			this.moverPosition = mover.GetEntity ().GetComponent<PositionComponent> ();
 			if (float.IsNaN(desiredPosition.x))
@@ -115,7 +147,11 @@ namespace CSD
 			ProceduralWorldSimulator.RegisterUpdatable (this);
 			mover.movement.user = this;
 			this.maxDist = Vector2.Distance (desiredPosition, moverPosition.position);
+			//TODO turn off other movement
+			if(pc!=null)
+				pc.SetTarget (desiredPosition);
 			Activate ();
+
 		}
 
 		public override List<Resource> GetRequiredResources(){
@@ -134,7 +170,10 @@ namespace CSD
 		}
 
 		//return true when the event is complete and is ready to be destroyed
-		public override void Update(float time){
+		public override void Tick(float time){
+			if (pc!=null&&pc.HasReachedDestination ())
+				progress = 1.0f;
+
 			if (mover == null || progress >= 1.0f || mover.movement.user != this)
 				progress = 1.0f;
 			else {
@@ -157,8 +196,11 @@ namespace CSD
 				var hauledPosition = inventoryComponent.haulingSlot.item.GetEntity().GetComponent<PositionComponent> ();
 				hauledPosition.position = moverPosition.position + Vector2.up;
 			}
-			if (progress >= 1.0f)
+			if (progress >= 1.0f) {
 				Debug.Log ("Finished " + GetName ());
+				if(pc!=null)
+					pc.Cancel ();
+			}
 		}
 
 		public override bool IsComplete(){
@@ -206,7 +248,7 @@ namespace CSD
 		}
 
 		//return true when the event is complete and is ready to be destroyed
-		public override void Update(float time){
+		public override void Tick(float time){
 			if (eater == null || food == null || progress >= 1.0f || eater.movement.user != this || plant == null || plant.substance.user != this)
 				progress = 1.0f;
 			else {

@@ -22,7 +22,7 @@ namespace CSD
 			Activate ();
 		}
 
-		public override void Update (float time)
+		public override void Tick (float time)
 		{
 			if (!substance.IsFree ())
 				return;
