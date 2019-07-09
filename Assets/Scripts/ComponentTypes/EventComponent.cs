@@ -117,6 +117,8 @@ namespace CSD
 		void SetTarget (Vector2 position);
 		bool HasReachedDestination();
 		void Cancel();
+		void TogglePathfinding (bool value);
+		void ToggleCollision (bool value);
 	}
 
 	public class MoveEvent : EventComponent

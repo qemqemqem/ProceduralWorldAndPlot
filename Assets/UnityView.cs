@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 using CSD;
 using InControl;
 
@@ -17,6 +18,9 @@ public class UnityView : MonoBehaviour {
 	public static Dictionary<Entity, GameObject> displaysMap = new Dictionary<Entity, GameObject> ();
 	public GameObject prototype;
 	public GameObject cameraPrototype;
+	public GameObject mapTilePrefab;
+	public int startMapSize = 10;
+	public float mapTilePrefabSize=10f;
 
 	public static List<Entity> entities = new List<Entity>();
 	public static List<Entity> controllableAgents = new List<Entity>();
@@ -29,10 +33,31 @@ public class UnityView : MonoBehaviour {
 
 	private static TopDownActions joystickListener;
 
+	//TODO maintain this based on things being added
+	private Dictionary<Vector2Int, NavMeshSurface> coordinate2Navmesh = new Dictionary<Vector2Int, NavMeshSurface>();
+	private HashSet<NavMeshSurface> surfacesThatNeedRebaking = new HashSet<NavMeshSurface> ();
+
+
+	private static bool needsToRebake=false;
+
+
 
 	// Use this for initialization
 	void Awake () {
 		viewer = this;
+		CreateMap ();
+	}
+
+	void Start(){
+		if (mapTilePrefab == null)
+			return;
+		var surface = mapTilePrefab.GetComponent<NavMeshSurface> ();
+		if (surface == null)
+			return;
+		surface.overrideTileSize = true;
+		surface.tileSize = 64;
+		surface.overrideVoxelSize = true;
+		surface.voxelSize = .25f;
 	}
 
 	// Update is called once per frame
@@ -42,7 +67,33 @@ public class UnityView : MonoBehaviour {
 		foreach (var player in device2Player.Values) {
 			player.Update ();
 		}
+		foreach (var navMesh in surfacesThatNeedRebaking) {
+			navMesh.BuildNavMesh ();
+		}
+		surfacesThatNeedRebaking.Clear ();
 	}
+
+	public void CreateMap(){
+		if (mapTilePrefab == null)
+			return;
+		for (int i = -startMapSize/2; i <= startMapSize/2; ++i) { 
+			for (int j = -startMapSize/2; j <= startMapSize/2; ++j) {
+				Vector2Int pos = new Vector2Int (i, j);
+				GameObject mapTile = GameObject.Instantiate (mapTilePrefab, transform);
+				NavMeshSurface surf = mapTile.GetComponent<NavMeshSurface> ();
+				if (surf == null) {
+					GameObject.Destroy (mapTile);
+					return;
+				}
+				mapTile.transform.position = new Vector3 (i * mapTilePrefabSize, 0f, j * mapTilePrefabSize);
+				mapTile.SetActive (true);
+				coordinate2Navmesh.Add (pos, surf);
+				surfacesThatNeedRebaking.Add (surf);
+			}
+		}
+	}
+
+
 
 	public void RemoveTheDead() {
 		foreach (var entity in entities) {
@@ -67,11 +118,35 @@ public class UnityView : MonoBehaviour {
 
 	public static void AddEntity(Entity entity) {
 		entities.Add(entity);
+
+
 		GameObject display = GameObject.Instantiate(viewer.prototype);
 		UnityMeshComponent meshComponent = display.AddComponent<UnityMeshComponent>();
+		if (entity.HasComponent<AgentComponent> ()) {
+			meshComponent.TogglePathfinding (true);
+			meshComponent.ToggleCollision (false);
+		} else {
+			meshComponent.TogglePathfinding (false);
+			meshComponent.ToggleCollision (true);
+		}
+		
 		entity.AddComponent<UnityMeshComponent> (meshComponent);
 		//meshComponent.SetEntity (entity);
 		displaysMap[entity] = display;
+		var pos = entity.GetComponent<PositionComponent> ();
+		if (pos == null)
+			return;
+		Vector2Int coord = new Vector2Int (Mathf.FloorToInt (pos.position.x), Mathf.FloorToInt (pos.position.y));
+		if (viewer.coordinate2Navmesh.ContainsKey (coord)) {
+			var navmesh = viewer.coordinate2Navmesh [coord];
+			viewer.surfacesThatNeedRebaking.Add (navmesh);
+		} else {
+			Mathf.Sqrt (2f);
+		}
+		display.SetActive (true);
+			
+
+
 	}
 
 	public static void RegisterControllableAgent(Entity entity){

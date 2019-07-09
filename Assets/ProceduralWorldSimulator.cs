@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 using InControl;
 
 namespace CSD{
@@ -41,6 +42,7 @@ namespace CSD{
 		}
 
 		private void SetupWorld(){
+			//TODO initialize the view first...
 			int numPeople = 5;
 			int mapSize = 50;
 			int numFoods = 20;

@@ -10,6 +10,7 @@ public class UnityMeshComponent : MonoBehaviour, IComponent, IPathfindingInterfa
 	public bool isUnderDirectControl=false;
 	public Resource position = new Resource();
 	public NavMeshAgent navmeshAgent;
+	public NavMeshObstacle obstacle;
 	public Vector3 desiredPosition;
 	public Vector3 closestNavmeshPosition;
 	public bool isReachable;
@@ -19,13 +20,9 @@ public class UnityMeshComponent : MonoBehaviour, IComponent, IPathfindingInterfa
 
 	// Use this for initialization
 	void Start () {
-		if(navmeshAgent==null)
-			navmeshAgent = gameObject.GetComponent<NavMeshAgent> ();
 	}
 
 	void Reset(){
-		if (navmeshAgent == null)
-			navmeshAgent = gameObject.AddComponent<NavMeshAgent> ();
 	}
 	
 	// Update is called once per frame
@@ -103,5 +100,30 @@ public class UnityMeshComponent : MonoBehaviour, IComponent, IPathfindingInterfa
 			return;
 		navmeshAgent.SetDestination (transform.position);
 		navmeshAgent.enabled = false;
+	}
+		
+	public void TogglePathfinding (bool value){
+		if (!value) {
+			if (navmeshAgent == null)
+				return;
+			Destroy (navmeshAgent);
+		} else {
+			if (navmeshAgent != null)
+				return;
+			navmeshAgent = gameObject.AddComponent<NavMeshAgent> ();
+		}
+	}
+	public void ToggleCollision (bool value){
+		if (!value) {
+			if (obstacle == null)
+				return;
+			Destroy (obstacle);
+		} else {
+			if (obstacle != null)
+				return;
+			obstacle = gameObject.AddComponent<NavMeshObstacle> ();
+			obstacle.carving = true;
+			obstacle.carveOnlyStationary = false;
+		}		
 	}
 }
