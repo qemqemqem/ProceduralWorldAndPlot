@@ -35,7 +35,8 @@ public class UnityView : MonoBehaviour {
 
 	//TODO maintain this based on things being added
 	private Dictionary<Vector2Int, NavMeshSurface> coordinate2Navmesh = new Dictionary<Vector2Int, NavMeshSurface>();
-	private HashSet<NavMeshSurface> surfacesThatNeedRebaking = new HashSet<NavMeshSurface> ();
+	private Queue<NavMeshSurface> rebakeQueue = new Queue<NavMeshSurface> ();
+	private int maxTilesToBakePerFrame=5;
 
 
 	private static bool needsToRebake=false;
@@ -67,10 +68,11 @@ public class UnityView : MonoBehaviour {
 		foreach (var player in device2Player.Values) {
 			player.Update ();
 		}
-		foreach (var navMesh in surfacesThatNeedRebaking) {
+		int i = 0;
+		while (rebakeQueue.Count > 0&&i<maxTilesToBakePerFrame) {
+			var navMesh = rebakeQueue.Dequeue ();
 			navMesh.BuildNavMesh ();
 		}
-		surfacesThatNeedRebaking.Clear ();
 	}
 
 	public void CreateMap(){
@@ -88,7 +90,7 @@ public class UnityView : MonoBehaviour {
 				mapTile.transform.position = new Vector3 (i * mapTilePrefabSize, 0f, j * mapTilePrefabSize);
 				mapTile.SetActive (true);
 				coordinate2Navmesh.Add (pos, surf);
-				surfacesThatNeedRebaking.Add (surf);
+				rebakeQueue.Enqueue (surf);
 			}
 		}
 	}
@@ -136,10 +138,10 @@ public class UnityView : MonoBehaviour {
 		var pos = entity.GetComponent<PositionComponent> ();
 		if (pos == null)
 			return;
-		Vector2Int coord = new Vector2Int (Mathf.FloorToInt (pos.position.x), Mathf.FloorToInt (pos.position.y));
+		Vector2Int coord = new Vector2Int (Mathf.FloorToInt (pos.position.x/viewer.mapTilePrefabSize), Mathf.FloorToInt (pos.position.y/viewer.mapTilePrefabSize));
 		if (viewer.coordinate2Navmesh.ContainsKey (coord)) {
 			var navmesh = viewer.coordinate2Navmesh [coord];
-			viewer.surfacesThatNeedRebaking.Add (navmesh);
+			viewer.rebakeQueue.Enqueue (navmesh);
 		} else {
 			Mathf.Sqrt (2f);
 		}

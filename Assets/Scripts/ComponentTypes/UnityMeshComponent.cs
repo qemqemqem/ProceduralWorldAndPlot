@@ -5,7 +5,7 @@ using UnityEngine.AI;
 using CSD;
 
 
-public class UnityMeshComponent : MonoBehaviour, IComponent, IPathfindingInterface {
+public class UnityMeshComponent : MonoBehaviour, IComponent, IPathfindingInterface, IViewHolder {
 	private IEntity entity;
 	public bool isUnderDirectControl=false;
 	public Resource position = new Resource();
@@ -28,10 +28,12 @@ public class UnityMeshComponent : MonoBehaviour, IComponent, IPathfindingInterfa
 	// Update is called once per frame
 	void FixedUpdate () {
 		var positionComponent = entity.GetComponent<PositionComponent> ();
-		if (isUnderDirectControl||(navmeshAgent!=null&&isNavigating)) {
+		var carriableComponent = entity.GetComponent<CarriableComponent> ();
+		if (isUnderDirectControl||(navmeshAgent!=null&&isNavigating)||(carriableComponent!=null&&carriableComponent.carrier!=null)) {
 			positionComponent.position = new Vector2 (transform.position.x, transform.position.z);
 			return;
 		}
+
 		if (positionComponent != null) {
 			if (float.IsNaN (positionComponent.position.x)) {
 				Mathf.Sqrt (2f);
@@ -125,5 +127,28 @@ public class UnityMeshComponent : MonoBehaviour, IComponent, IPathfindingInterfa
 			obstacle.carving = true;
 			obstacle.carveOnlyStationary = false;
 		}		
+	}
+
+	public void HoldThing (IEntity entity){
+		var mc = entity.GetComponent<UnityMeshComponent> ();
+		if (mc == null)
+			return;
+		mc.transform.SetParent (transform);
+		var oc = mc.GetComponent<NavMeshObstacle> ();
+		if (oc == null)
+			return;
+		oc.enabled = false;
+	}
+
+	public void DropThing (IEntity entity){
+		var mc = entity.GetComponent<UnityMeshComponent> ();
+		if (mc == null)
+			return;
+		mc.transform.SetParent (null);
+		var oc = mc.GetComponent<NavMeshObstacle> ();
+		if (oc == null)
+			return;
+		oc.enabled = true;
+		//TODO add a place method to the tile and rebake the navmesh
 	}
 }

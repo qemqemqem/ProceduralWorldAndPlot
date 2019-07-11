@@ -7,7 +7,7 @@ namespace CSD
 	public class PlantComponent : UpdateableComponent
 	{
 		public float size = 1.0f;
-		public float growthRate =.45f;
+		public float growthRate =.01f;
 		public float minSize = 1.0f;
 		public float maxSize = 4.0f;
 		public int numOffspringMin = 1;

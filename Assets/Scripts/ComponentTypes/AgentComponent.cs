@@ -41,7 +41,7 @@ namespace CSD
 					InventoryComponent inventoryComponent = GetEntity().GetComponent<InventoryComponent>();
 					if (!inventoryComponent.haulingSlot.IsFree()) {
 						// Drop it.
-						objectives.Add (new FullySpecifiedObjective (new DropEvent(inventoryComponent, inventoryComponent.haulingSlot)));
+						objectives.Add (new FullySpecifiedObjective (new DropEvent(inventoryComponent, inventoryComponent.haulingSlot, inventoryComponent.haulingSlot.item.GetEntity().GetComponent<UnityMeshComponent>())));
 						Debug.Log("Starting objective to drop hauled item");
 					} else {
 						// Pick something up.
@@ -50,7 +50,7 @@ namespace CSD
 						var targetFood = foods [UnityEngine.Random.Range (0, foods.Count - 1)];
 						if (targetFood.GetEntity().GetComponent<CarriableComponent>().carrier == null) {
 							Debug.Log ("Starting objective to pick up food at "+targetFood.position);
-							objectives.Add (new FullySpecifiedObjective (new PickUpEvent (inventoryComponent, targetFood.GetEntity().GetComponent<CarriableComponent> ())));
+							objectives.Add (new FullySpecifiedObjective (new PickUpEvent (inventoryComponent, targetFood.GetEntity().GetComponent<CarriableComponent> (), targetFood.GetEntity().GetComponent<UnityMeshComponent>())));
 						}
 					}
 				} else {
