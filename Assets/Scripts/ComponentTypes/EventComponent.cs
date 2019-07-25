@@ -104,12 +104,22 @@ namespace CSD
 		public virtual List<Requirement> GetRequirments(){
 			return null;
 		}
+
+		public virtual Transform DbgGetTarget(){
+			return null;
+		}
 	}
 
 	public class InstantEvent : EventComponent
 	{
+		private bool isComplete = false;
+
 		public override bool IsComplete() {
-			return true;
+			return isComplete;
+		}
+
+		public override void Initialize () {
+			isComplete = true;
 		}
 	}
 
@@ -173,9 +183,10 @@ namespace CSD
 
 		//return true when the event is complete and is ready to be destroyed
 		public override void Tick(float time){
-			if (pc!=null&&pc.HasReachedDestination ())
+			if (pc!=null&&pc.HasReachedDestination ()||mover.movement.user!=this)
 				progress = 1.0f;
 
+			/*
 			if (mover == null || progress >= 1.0f || mover.movement.user != this)
 				progress = 1.0f;
 			else {
@@ -191,7 +202,7 @@ namespace CSD
 				moverPosition.position += desiredDelta;
 				float distance = Vector2.Distance (moverPosition.position, desiredPosition);
 				progress = (maxDist-distance)/maxDist;
-			}
+			}*/
 			// Move whatever they're hauling.
 			/*
 			var inventoryComponent = mover.GetEntity().GetComponent<InventoryComponent> ();
@@ -208,6 +219,16 @@ namespace CSD
 
 		public override bool IsComplete(){
 			return progress >= 1.0f;
+		}
+
+		public override string ToString ()
+		{
+			return string.Format ("[MoveEvent]: moving to "+desiredPosition.ToString());
+		}
+
+		public override Transform DbgGetTarget ()
+		{
+			return null;
 		}
 	}
 
@@ -271,8 +292,20 @@ namespace CSD
 
 		public override List<Requirement> GetRequirments(){
 			List<Requirement> requirements = new List<Requirement> ();
-			requirements.Add (new RangeRequirement (food, eater.GetEntity().GetComponent<PositionComponent>(), 0.1f));
+			requirements.Add (new RangeRequirement (food, eater.GetEntity().GetComponent<PositionComponent>(), 2f));
 			return requirements;
+		}
+
+		public override string ToString ()
+		{
+			return string.Format ("[EatEvent]: trying to eat food at "+food.position.ToString());
+		}
+
+		public override Transform DbgGetTarget ()
+		{
+			if (food == null)
+				return null;
+			return food.GetEntity ().GetComponent<UnityMeshComponent> ().gameObject.transform;
 		}
 	}
 }

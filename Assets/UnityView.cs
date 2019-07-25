@@ -87,7 +87,7 @@ public class UnityView : MonoBehaviour {
 					GameObject.Destroy (mapTile);
 					return;
 				}
-				mapTile.transform.position = new Vector3 (i * mapTilePrefabSize, 0f, j * mapTilePrefabSize);
+				mapTile.transform.position = new Vector3 (i * mapTilePrefabSize, -.5f, j * mapTilePrefabSize);
 				mapTile.SetActive (true);
 				coordinate2Navmesh.Add (pos, surf);
 				rebakeQueue.Enqueue (surf);
@@ -127,6 +127,10 @@ public class UnityView : MonoBehaviour {
 		if (entity.HasComponent<AgentComponent> ()) {
 			meshComponent.TogglePathfinding (true);
 			meshComponent.ToggleCollision (false);
+			//DBG appearance code
+			var rend = meshComponent.gameObject.GetComponent<Renderer> ();
+			rend.material.color = Color.red;
+			meshComponent.gameObject.name = "agent";
 		} else {
 			meshComponent.TogglePathfinding (false);
 			meshComponent.ToggleCollision (true);

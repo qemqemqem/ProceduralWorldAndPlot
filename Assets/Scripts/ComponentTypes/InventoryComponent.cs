@@ -43,6 +43,7 @@ namespace CSD
 		}
 
 		public override void Initialize () {
+			base.Initialize ();
 			if (carrier.haulingSlot.IsFree()) {
 				carrier.haulingSlot.item = carried;
 				carried.carrier = carrier;
@@ -53,8 +54,20 @@ namespace CSD
 
 		public override List<Requirement> GetRequirments(){
 			List<Requirement> requirements = new List<Requirement> ();
-			requirements.Add (new RangeRequirement (carried.GetEntity().GetComponent<PositionComponent>(), carrier.GetEntity().GetComponent<PositionComponent>(), 0.1f));
+			requirements.Add (new RangeRequirement (carried.GetEntity().GetComponent<PositionComponent>(), carrier.GetEntity().GetComponent<PositionComponent>(), 2f));
 			return requirements;
+		}
+
+		public override string ToString ()
+		{
+			return string.Format ("[Picking Up]: "+carried.GetEntity().ToString());
+		}
+
+		public override Transform DbgGetTarget ()
+		{
+			if (carried == null)
+				return null;
+			return carried.GetEntity ().GetComponent<UnityMeshComponent> ().gameObject.transform;
 		}
 	}
 
@@ -76,6 +89,11 @@ namespace CSD
 			if (viewHolder != null)
 				viewHolder.DropThing (slot.item.GetEntity ());
 			slot.item = null;
+		}
+
+		public override string ToString ()
+		{
+			return string.Format ("[Dropping Up]: "+slot.item.GetEntity().ToString());
 		}
 		/*
 		public override List<Requirement> GetRequirments(){

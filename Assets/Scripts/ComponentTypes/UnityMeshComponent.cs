@@ -15,7 +15,7 @@ public class UnityMeshComponent : MonoBehaviour, IComponent, IPathfindingInterfa
 	public Vector3 closestNavmeshPosition;
 	public bool isReachable;
 	public bool isNavigating;
-	public float reach = .5f;
+	public float reach = 2.0f;
 	public IEntity target;
 
 	// Use this for initialization
@@ -28,6 +28,8 @@ public class UnityMeshComponent : MonoBehaviour, IComponent, IPathfindingInterfa
 	// Update is called once per frame
 	void FixedUpdate () {
 		var positionComponent = entity.GetComponent<PositionComponent> ();
+		if (positionComponent == null)
+			return;
 		var carriableComponent = entity.GetComponent<CarriableComponent> ();
 		if (isUnderDirectControl||(navmeshAgent!=null&&isNavigating)||(carriableComponent!=null&&carriableComponent.carrier!=null)) {
 			positionComponent.position = new Vector2 (transform.position.x, transform.position.z);
@@ -93,7 +95,11 @@ public class UnityMeshComponent : MonoBehaviour, IComponent, IPathfindingInterfa
 			Debug.LogError ("Navmesh Component not set up correctly");
 			return false;
 		}
-		return Vector3.Distance(navmeshAgent.destination,transform.position)<reach;
+		if (Vector3.Distance (navmeshAgent.destination, transform.position) < reach)
+			return true;
+		else
+			return false;
+		//return Vector3.Distance(navmeshAgent.destination,transform.position)<reach;
 	}
 	public void Cancel(){
 		isNavigating = false;
@@ -101,7 +107,7 @@ public class UnityMeshComponent : MonoBehaviour, IComponent, IPathfindingInterfa
 		if (navmeshAgent == null)
 			return;
 		navmeshAgent.SetDestination (transform.position);
-		navmeshAgent.enabled = false;
+		//navmeshAgent.enabled = false;//TODO fix this...
 	}
 		
 	public void TogglePathfinding (bool value){

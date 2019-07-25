@@ -28,39 +28,48 @@ namespace CSD
 
 	public class HumanoidAI : AI {
 		public override List<Objective> GetSortedObjectives(AgentComponent agentComponent){
-			if (objectives.Count==0) {
+			if (objectives.Count == 0) {
 				List<PositionComponent> foods = ProceduralWorldSimulator.instance.foods;
 				// AI goes here.
 				//*
 				if (UnityEngine.Random.value > 0.52) {
 					// Building.
-					objectives.Add(new BuildObjective(agentComponent, new Vector2(UnityEngine.Random.Range(-10, 10), UnityEngine.Random.Range(-10, 10))));
-					Debug.Log("Starting objective to build something");
+					objectives.Add (new BuildObjective (agentComponent, new Vector2 (UnityEngine.Random.Range (-10, 10), UnityEngine.Random.Range (-10, 10))));
+					Debug.Log ("Starting objective to build something");
 				} else if (UnityEngine.Random.value > .5) {
 					// Inventory.
-					InventoryComponent inventoryComponent = GetEntity().GetComponent<InventoryComponent>();
-					if (!inventoryComponent.haulingSlot.IsFree()) {
+					InventoryComponent inventoryComponent = GetEntity ().GetComponent<InventoryComponent> ();
+					if (!inventoryComponent.haulingSlot.IsFree ()) {
 						// Drop it.
-						objectives.Add (new FullySpecifiedObjective (new DropEvent(inventoryComponent, inventoryComponent.haulingSlot, inventoryComponent.haulingSlot.item.GetEntity().GetComponent<UnityMeshComponent>())));
-						Debug.Log("Starting objective to drop hauled item");
+						objectives.Add (new FullySpecifiedObjective (new DropEvent (inventoryComponent, inventoryComponent.haulingSlot, inventoryComponent.haulingSlot.item.GetEntity ().GetComponent<UnityMeshComponent> ())));
+						Debug.Log ("Starting objective to drop hauled item");
 					} else {
 						// Pick something up.
 						if (foods.Count == 0)
-							return new List<Objective>();
+							return new List<Objective> ();
 						var targetFood = foods [UnityEngine.Random.Range (0, foods.Count - 1)];
-						if (targetFood.GetEntity().GetComponent<CarriableComponent>().carrier == null) {
-							Debug.Log ("Starting objective to pick up food at "+targetFood.position);
-							objectives.Add (new FullySpecifiedObjective (new PickUpEvent (inventoryComponent, targetFood.GetEntity().GetComponent<CarriableComponent> (), targetFood.GetEntity().GetComponent<UnityMeshComponent>())));
+						if (targetFood.GetEntity ().GetComponent<CarriableComponent> ().carrier == null) {
+							Debug.Log ("Starting objective to pick up food at " + targetFood.position);
+							objectives.Add (new FullySpecifiedObjective (new PickUpEvent (inventoryComponent, targetFood.GetEntity ().GetComponent<CarriableComponent> (), targetFood.GetEntity ().GetComponent<UnityMeshComponent> ())));
 						}
 					}
 				} else {
 					// Eating.
 					if (foods.Count == 0)
-						return new List<Objective>();;
+						return new List<Objective> ();
+					;
 					var targetFood = foods [UnityEngine.Random.Range (0, foods.Count - 1)];
-					Debug.Log ("Starting objective to eat food at "+targetFood.position);
-					objectives.Add (new FullySpecifiedObjective (new EatEvent (GetEntity(), targetFood)));
+					Debug.Log ("Starting objective to eat food at " + targetFood.position);
+					objectives.Add (new FullySpecifiedObjective (new EatEvent (GetEntity (), targetFood)));
 				}//*/
+			} else {
+				Objective obj = objectives [0];
+				if (obj is FullySpecifiedObjective) {
+					FullySpecifiedObjective fso = (FullySpecifiedObjective)obj;
+					if (fso.wayToDoObjective is PickUpEvent)
+						Math.Sqrt (2);
+				}
+				Math.Sqrt (2);
 			}
 			return objectives;
 		}
@@ -83,6 +92,11 @@ namespace CSD
 
 		public override bool IsComplete(){
 			return wayToDoObjective == null || wayToDoObjective.IsComplete ();
+		}
+
+		public override string ToString ()
+		{
+			return string.Format ("[Objective]: "+wayToDoObjective.ToString());
 		}
 	}
 
@@ -151,6 +165,14 @@ namespace CSD
 						continue;
 					EventComponent action = GetBestDoableAction (objective);
 					if (action != null) {
+						if (action is PickUpEvent) {
+							Math.Sqrt (2);
+						}
+						if (action is MoveEvent && objective is FullySpecifiedObjective) {
+							FullySpecifiedObjective fso = (FullySpecifiedObjective)objective;
+							if (fso.wayToDoObjective is PickUpEvent)
+								Math.Sqrt (2);
+						}
 						action2Objective.Add (action, objective);
 						AllocateResources (action);
 					}
