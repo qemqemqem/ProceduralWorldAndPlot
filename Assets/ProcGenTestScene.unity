@@ -283,6 +283,7 @@ MonoBehaviour:
   cameraPrototype: {fileID: 1919821991}
   mapTilePrefab: {fileID: 1465495996157804, guid: d2ad084e859a8e54e84fd567dbfccf72,
     type: 2}
+  startMapSize: 10
   mapTilePrefabSize: 10
 --- !u!4 &458844763
 Transform:

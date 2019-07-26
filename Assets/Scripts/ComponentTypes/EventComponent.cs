@@ -30,6 +30,7 @@ namespace CSD
 	}
 
 	public class RangeRequirement : Requirement{
+		//TODO replace this with colliders and adjacency and orientation
 		public float range;
 		public PositionComponent rangeTo;
 		public PositionComponent actor;
@@ -292,7 +293,7 @@ namespace CSD
 
 		public override List<Requirement> GetRequirments(){
 			List<Requirement> requirements = new List<Requirement> ();
-			requirements.Add (new RangeRequirement (food, eater.GetEntity().GetComponent<PositionComponent>(), 2f));
+			requirements.Add (new RangeRequirement (food, eater.GetEntity().GetComponent<PositionComponent>(), 3f));
 			return requirements;
 		}
 
@@ -304,6 +305,9 @@ namespace CSD
 		public override Transform DbgGetTarget ()
 		{
 			if (food == null)
+				return null;
+			var mc = food.GetEntity ().GetComponent<UnityMeshComponent> ();
+			if (mc == null || mc.gameObject == null)
 				return null;
 			return food.GetEntity ().GetComponent<UnityMeshComponent> ().gameObject.transform;
 		}

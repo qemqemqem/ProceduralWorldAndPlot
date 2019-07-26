@@ -54,7 +54,7 @@ namespace CSD
 
 		public override List<Requirement> GetRequirments(){
 			List<Requirement> requirements = new List<Requirement> ();
-			requirements.Add (new RangeRequirement (carried.GetEntity().GetComponent<PositionComponent>(), carrier.GetEntity().GetComponent<PositionComponent>(), 2f));
+			requirements.Add (new RangeRequirement (carried.GetEntity().GetComponent<PositionComponent>(), carrier.GetEntity().GetComponent<PositionComponent>(), 3f));
 			return requirements;
 		}
 
@@ -93,6 +93,8 @@ namespace CSD
 
 		public override string ToString ()
 		{
+			if (slot == null || slot.item == null)
+				Math.Sqrt (2);
 			return string.Format ("[Dropping Up]: "+slot.item.GetEntity().ToString());
 		}
 		/*

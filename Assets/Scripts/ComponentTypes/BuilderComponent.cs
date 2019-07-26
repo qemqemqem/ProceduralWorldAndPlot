@@ -118,7 +118,7 @@ namespace CSD
 		public override List<Requirement> GetRequirments() {
 			List<Requirement> requirements = new List<Requirement> ();
 			// TODO add a requirement to be holding a thing.
-			requirements.Add (new RangeRequirement (building.GetEntity().GetComponent<PositionComponent>(), builder.GetEntity().GetComponent<PositionComponent>(), 2f));
+			requirements.Add (new RangeRequirement (building.GetEntity().GetComponent<PositionComponent>(), builder.GetEntity().GetComponent<PositionComponent>(), 3f));
 			return requirements;
 		}
 	}
@@ -139,7 +139,7 @@ namespace CSD
 		}
 		public override List<Requirement> GetRequirments() {
 			List<Requirement> requirements = new List<Requirement> ();
-			requirements.Add (new RangeRequirement (building.GetEntity().GetComponent<PositionComponent>(), builder.GetEntity().GetComponent<PositionComponent>(), 2f));
+			requirements.Add (new RangeRequirement (building.GetEntity().GetComponent<PositionComponent>(), builder.GetEntity().GetComponent<PositionComponent>(), 3f));
 			return requirements;
 		}
 	}

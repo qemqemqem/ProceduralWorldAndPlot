@@ -15,7 +15,7 @@ public class UnityMeshComponent : MonoBehaviour, IComponent, IPathfindingInterfa
 	public Vector3 closestNavmeshPosition;
 	public bool isReachable;
 	public bool isNavigating;
-	public float reach = 2.0f;
+	public float reach = 1.5f;
 	public IEntity target;
 
 	// Use this for initialization
@@ -33,6 +33,8 @@ public class UnityMeshComponent : MonoBehaviour, IComponent, IPathfindingInterfa
 		var carriableComponent = entity.GetComponent<CarriableComponent> ();
 		if (isUnderDirectControl||(navmeshAgent!=null&&isNavigating)||(carriableComponent!=null&&carriableComponent.carrier!=null)) {
 			positionComponent.position = new Vector2 (transform.position.x, transform.position.z);
+			if(carriableComponent!=null&&carriableComponent.carrier!=null)
+				return;
 			return;
 		}
 
@@ -139,22 +141,37 @@ public class UnityMeshComponent : MonoBehaviour, IComponent, IPathfindingInterfa
 		var mc = entity.GetComponent<UnityMeshComponent> ();
 		if (mc == null)
 			return;
-		mc.transform.SetParent (transform);
+		mc.transform.SetParent (gameObject.transform);
+		mc.transform.localPosition = mc.transform.localPosition + Vector3.up*.1f;
+		mc.isUnderDirectControl = true;
 		var oc = mc.GetComponent<NavMeshObstacle> ();
+		//Debug code
+		var renderer = gameObject.GetComponent<Renderer>();
+		renderer.material.color = Color.green;
+		var renderer2 = mc.transform.gameObject.GetComponent<Renderer>();
+		renderer2.material.color = Color.blue;
+		//end debug code
 		if (oc == null)
 			return;
 		oc.enabled = false;
 	}
 
 	public void DropThing (IEntity entity){
+		Debug.Break ();
 		var mc = entity.GetComponent<UnityMeshComponent> ();
 		if (mc == null)
 			return;
+		mc.transform.localPosition = mc.transform.localPosition - Vector3.up*.1f;
 		mc.transform.SetParent (null);
+		var renderer = gameObject.GetComponent<Renderer>();
+		renderer.material.color = Color.red;
+		var renderer2 = mc.transform.gameObject.GetComponent<Renderer>();
+		renderer2.material.color = Color.white;
 		var oc = mc.GetComponent<NavMeshObstacle> ();
 		if (oc == null)
 			return;
 		oc.enabled = true;
+		mc.isUnderDirectControl = false;
 		//TODO add a place method to the tile and rebake the navmesh
 	}
 }

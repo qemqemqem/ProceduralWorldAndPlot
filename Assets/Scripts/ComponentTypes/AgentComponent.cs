@@ -32,14 +32,14 @@ namespace CSD
 				List<PositionComponent> foods = ProceduralWorldSimulator.instance.foods;
 				// AI goes here.
 				//*
-				if (UnityEngine.Random.value > 0.52) {
+				if (UnityEngine.Random.value > 1) {
 					// Building.
 					objectives.Add (new BuildObjective (agentComponent, new Vector2 (UnityEngine.Random.Range (-10, 10), UnityEngine.Random.Range (-10, 10))));
 					Debug.Log ("Starting objective to build something");
 				} else if (UnityEngine.Random.value > .5) {
 					// Inventory.
 					InventoryComponent inventoryComponent = GetEntity ().GetComponent<InventoryComponent> ();
-					if (!inventoryComponent.haulingSlot.IsFree ()) {
+					if (false&&!inventoryComponent.haulingSlot.IsFree ()) {
 						// Drop it.
 						objectives.Add (new FullySpecifiedObjective (new DropEvent (inventoryComponent, inventoryComponent.haulingSlot, inventoryComponent.haulingSlot.item.GetEntity ().GetComponent<UnityMeshComponent> ())));
 						Debug.Log ("Starting objective to drop hauled item");
@@ -50,7 +50,7 @@ namespace CSD
 						var targetFood = foods [UnityEngine.Random.Range (0, foods.Count - 1)];
 						if (targetFood.GetEntity ().GetComponent<CarriableComponent> ().carrier == null) {
 							Debug.Log ("Starting objective to pick up food at " + targetFood.position);
-							objectives.Add (new FullySpecifiedObjective (new PickUpEvent (inventoryComponent, targetFood.GetEntity ().GetComponent<CarriableComponent> (), targetFood.GetEntity ().GetComponent<UnityMeshComponent> ())));
+							objectives.Add (new FullySpecifiedObjective (new PickUpEvent (inventoryComponent, targetFood.GetEntity ().GetComponent<CarriableComponent> (), inventoryComponent.GetEntity ().GetComponent<UnityMeshComponent> ())));
 						}
 					}
 				} else {
