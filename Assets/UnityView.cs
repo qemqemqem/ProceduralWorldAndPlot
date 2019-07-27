@@ -179,6 +179,7 @@ public class UnityView : MonoBehaviour {
 		GameObject view = displaysMap [entity];
 		if (view == null)
 			return;
+		UnityEditor.Selection.activeGameObject = view;
 		CameraFocus focus = view.GetComponent<CameraFocus> ();
 		if (focus == null)
 			return;
@@ -320,9 +321,13 @@ public class UnityView : MonoBehaviour {
 	public static void ControlHumanoid( HumanPlayer player) {
 		if (player==null||player.entity==null||!entity2Homonid.ContainsKey (player.entity) || player2Entity.ContainsValue (player.entity))
 			return;
+		
 		ControllableHomonid availableAgent = entity2Homonid [player.entity];
+
 		if (availableAgent == null || player == null || player.GetInputDevice()==null)
 			return;
+		//dbg code
+		UnityEditor.Selection.activeGameObject = availableAgent.gameObject;
 		var inputDevice = player.GetInputDevice ();
 		Debug.Log ("asserting controll");
 		if (inputDevice != null){

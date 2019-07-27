@@ -8,6 +8,7 @@ namespace CSD{
 		private UnityMeshComponent umc;
 		private IEntity entity;
 		private AgentComponent ac;
+		[TextArea(4,40)]
 		public string currentBehavior;
 		public List<Transform> targets = new List<Transform> ();
 

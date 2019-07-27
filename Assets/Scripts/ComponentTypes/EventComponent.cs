@@ -64,9 +64,9 @@ namespace CSD
 				return null;
 			var components = actor.GetEntity ().GetComponents<IComponent> ();
 			if (rangeTo != null)
-				return new MoveEvent (actorAgent.GetEntity().GetComponent<UnityMeshComponent>(), actorAgent, rangeTo.position, actorAgent.moveSpeed);
+				return new MoveEvent (actorAgent.GetEntity().GetComponent<UnityMeshComponent>(), actorAgent, rangeTo.position, actorAgent.stats.GetStat("move speed").GetValue() / 100f);
 			if (rangeToPos != null)
-				return new MoveEvent (actorAgent.GetEntity().GetComponent<UnityMeshComponent>(), actorAgent, rangeToPos, actorAgent.moveSpeed);
+				return new MoveEvent (actorAgent.GetEntity().GetComponent<UnityMeshComponent>(), actorAgent, rangeToPos, actorAgent.stats.GetStat("move speed").GetValue() / 100f);
 			return null;
 		}
 	}
@@ -108,6 +108,10 @@ namespace CSD
 
 		public virtual Transform DbgGetTarget(){
 			return null;
+		}
+
+		public virtual string ToString() {
+			return "hello " + GetName ();
 		}
 	}
 
@@ -252,6 +256,7 @@ namespace CSD
 		{
 			progress = 0f;
 			eater.movement.user = this;
+			plant.substance.user = this;
 			Activate ();
 			initialSize = plant.size;
 		}
@@ -274,11 +279,14 @@ namespace CSD
 
 		//return true when the event is complete and is ready to be destroyed
 		public override void Tick(float time){
-			if (eater == null || food == null || progress >= 1.0f || eater.movement.user != this || plant == null || plant.substance.user != this)
+			if (eater == null || food == null || progress >= 1.0f || eater.movement.user != this || plant == null || plant.substance.user != this) {
 				progress = 1.0f;
+				Debug.Break ();
+			}
 			else {
-				plant.size -= eater.eatSpeed*time;
-				progress = 1- plant.size / initialSize;
+				progress += eater.stats.GetStat("eat speed").GetValue() / 100f * time;
+				//plant.size -= eater.eatSpeed*time;
+				//progress = 1- plant.size / initialSize;
 			}
 			if (IsComplete()) {
 				food.GetEntity().SetDestroyed(true);

@@ -157,7 +157,7 @@ public class UnityMeshComponent : MonoBehaviour, IComponent, IPathfindingInterfa
 	}
 
 	public void DropThing (IEntity entity){
-		Debug.Break ();
+		//Debug.Break ();
 		var mc = entity.GetComponent<UnityMeshComponent> ();
 		if (mc == null)
 			return;

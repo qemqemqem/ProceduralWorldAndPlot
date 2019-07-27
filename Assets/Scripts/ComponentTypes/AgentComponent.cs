@@ -21,7 +21,7 @@ namespace CSD
 			return objectives;
 		}
 		public void NotifyOfCompleteObjective(Objective obj){
-			if(obj.IsComplete())
+			//if(obj.IsComplete()) // TODO this may be needed
 				objectives.Remove (obj);
 		}
 	}
@@ -32,16 +32,16 @@ namespace CSD
 				List<PositionComponent> foods = ProceduralWorldSimulator.instance.foods;
 				// AI goes here.
 				//*
-				if (UnityEngine.Random.value > 1) {
+				if (UnityEngine.Random.value > .1f) {
 					// Building.
 					objectives.Add (new BuildObjective (agentComponent, new Vector2 (UnityEngine.Random.Range (-10, 10), UnityEngine.Random.Range (-10, 10))));
 					Debug.Log ("Starting objective to build something");
 				} else if (UnityEngine.Random.value > .5) {
 					// Inventory.
 					InventoryComponent inventoryComponent = GetEntity ().GetComponent<InventoryComponent> ();
-					if (false&&!inventoryComponent.haulingSlot.IsFree ()) {
+					if (!inventoryComponent.haulingSlot.IsFree ()) {
 						// Drop it.
-						objectives.Add (new FullySpecifiedObjective (new DropEvent (inventoryComponent, inventoryComponent.haulingSlot, inventoryComponent.haulingSlot.item.GetEntity ().GetComponent<UnityMeshComponent> ())));
+						objectives.Add (new FullySpecifiedObjective (new DropEvent (inventoryComponent, inventoryComponent.haulingSlot, inventoryComponent.GetEntity ().GetComponent<UnityMeshComponent> ())));
 						Debug.Log ("Starting objective to drop hauled item");
 					} else {
 						// Pick something up.
@@ -57,11 +57,12 @@ namespace CSD
 					// Eating.
 					if (foods.Count == 0)
 						return new List<Objective> ();
-					;
 					var targetFood = foods [UnityEngine.Random.Range (0, foods.Count - 1)];
 					Debug.Log ("Starting objective to eat food at " + targetFood.position);
 					objectives.Add (new FullySpecifiedObjective (new EatEvent (GetEntity (), targetFood)));
 				}//*/
+				if (objectives.Count == 0)
+					Debug.Log ("No objectives!!!");
 			} else {
 				Objective obj = objectives [0];
 				if (obj is FullySpecifiedObjective) {
@@ -71,6 +72,7 @@ namespace CSD
 				}
 				Math.Sqrt (2);
 			}
+
 			return objectives;
 		}
 	}
@@ -106,9 +108,7 @@ namespace CSD
 		//TODO
 		public Resource movement;
 		public string name="Glorpo";
-		public float fullness=100;
-		public float moveSpeed=5f;
-		public float eatSpeed=1f;
+		public AgentStatBlock stats = new AgentStatBlock();
 		public PositionComponent targetFood;
 		public AI brain;
 		private bool isUnderPlayerControl=false;
@@ -148,7 +148,6 @@ namespace CSD
 					completedEvents.Add (entry.Key);
 				if (entry.Value.IsComplete ()) {
 					brain.NotifyOfCompleteObjective (entry.Value);
-					//objectives.Remove (entry.Value);
 				}
 			}
 			foreach (var action in completedEvents) {
@@ -159,6 +158,8 @@ namespace CSD
 		//TODO modify this to look over the list of the top actions for each objective not just the best action
 		public void ChooseNewActions(){
 			List<Objective> objectives = brain.GetSortedObjectives (this);
+			if (objectives.Count == 0)
+				Debug.Break ();
 			while (HasAvailableResources()&&HasDoableActions()) {
 				foreach (var objective in objectives) {
 					if(action2Objective.ContainsValue(objective))
@@ -175,6 +176,9 @@ namespace CSD
 						}
 						action2Objective.Add (action, objective);
 						AllocateResources (action);
+					} else {
+						Debug.Log ("No best doable action");
+						Debug.Break ();
 					}
 				}
 			}

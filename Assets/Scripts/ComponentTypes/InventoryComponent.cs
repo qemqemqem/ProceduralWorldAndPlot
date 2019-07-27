@@ -84,17 +84,19 @@ namespace CSD
 		}
 
 		public override void Initialize () {
-			if (slot.item.carrier == carrier)
-				slot.item.carrier = null;
+			base.Initialize ();
 			if (viewHolder != null)
 				viewHolder.DropThing (slot.item.GetEntity ());
+			if (slot.item.carrier == carrier)
+				slot.item.carrier = null;
 			slot.item = null;
 		}
 
 		public override string ToString ()
 		{
 			if (slot == null || slot.item == null)
-				Math.Sqrt (2);
+				return "[null drop: " + (slot == null) + " / " + (slot.item == null) + "]";
+			Math.Sqrt (2);
 			return string.Format ("[Dropping Up]: "+slot.item.GetEntity().ToString());
 		}
 		/*
