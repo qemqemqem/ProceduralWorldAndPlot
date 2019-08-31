@@ -13,6 +13,11 @@ namespace CSD{
 		void SetDestroyed(bool destroyed);
 	}
 
+	//TODO use this to spawn entities in the world
+	public interface IEntitySpawner{
+		IEntity SpawnEntity ();
+	}
+
 	public interface IComponent{
 		IEntity GetEntity();
 		bool SetEntity(IEntity entity);

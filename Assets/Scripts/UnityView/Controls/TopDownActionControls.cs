@@ -130,8 +130,6 @@
 			actions.Bonus1.AddDefaultBinding (InputControlType.RightStickButton);
 			actions.Bonus2.AddDefaultBinding (InputControlType.LeftStickButton);
 
-
-
 			return actions;
 		}
 	}

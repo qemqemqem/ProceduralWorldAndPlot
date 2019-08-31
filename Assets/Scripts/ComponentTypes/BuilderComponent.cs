@@ -41,10 +41,10 @@ namespace CSD
 
 	public class BuildObjective : Objective {
 		public BuildableComponent buildableComponent;
-		public AgentComponent builder;
+		public BehaviorComponent builder;
 		public Vector2 pos;
 
-		public BuildObjective (AgentComponent builder, Vector2 pos) {
+		public BuildObjective (BehaviorComponent builder, Vector2 pos) {
 			this.builder = builder;
 			this.pos = pos;
 			// TODO pass in the type of building.
@@ -70,11 +70,11 @@ namespace CSD
 
 	// TODO maybe this should be instant
 	public class CreateFoundationEvent : EventComponent {
-		public AgentComponent builder;
+		public BehaviorComponent builder;
 		public BuildableComponent building;
 		public Vector2 pos;
 
-		public CreateFoundationEvent (AgentComponent builder, BuildableComponent building, Vector2 pos) {
+		public CreateFoundationEvent (BehaviorComponent builder, BuildableComponent building, Vector2 pos) {
 			this.builder = builder;
 			this.building = building;
 			this.pos = pos;
@@ -99,11 +99,11 @@ namespace CSD
 	}
 
 	public class AddResourceEvent : EventComponent {
-		public AgentComponent builder;
+		public BehaviorComponent builder;
 		public BuildableComponent building;
 		public BuildingResource resource;
 
-		public AddResourceEvent (AgentComponent builder, BuildableComponent building, BuildingResource resource) {
+		public AddResourceEvent (BehaviorComponent builder, BuildableComponent building, BuildingResource resource) {
 			this.builder = builder;
 			this.building = building;
 			this.resource = resource;
@@ -124,10 +124,10 @@ namespace CSD
 	}
 
 	public class DoBuildingWorkEvent : EventComponent {
-		public AgentComponent builder;
+		public BehaviorComponent builder;
 		public BuildableComponent building;
 
-		public DoBuildingWorkEvent (AgentComponent builder, BuildableComponent building) {
+		public DoBuildingWorkEvent (BehaviorComponent builder, BuildableComponent building) {
 			this.builder = builder;
 			this.building = building;
 		}

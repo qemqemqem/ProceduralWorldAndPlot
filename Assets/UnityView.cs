@@ -6,6 +6,13 @@ using CSD;
 using InControl;
 
 public class UnityView : MonoBehaviour {
+
+	//TODO move this somewhere else - this is just here so we can easily see a list of assets to spawn in our initial implementation of build menu
+	public List<Transform> buildings = new List<Transform>();
+	public ControlDrivenMenu menu;
+
+
+
 	//TODO have methods to create the unity representation of entities given a dataobject entity
 	//Have methods to add view specific entities
 
@@ -124,7 +131,7 @@ public class UnityView : MonoBehaviour {
 
 		GameObject display = GameObject.Instantiate(viewer.prototype);
 		UnityMeshComponent meshComponent = display.AddComponent<UnityMeshComponent>();
-		if (entity.HasComponent<AgentComponent> ()) {
+		if (entity.HasComponent<BehaviorComponent> ()) {
 			meshComponent.TogglePathfinding (true);
 			meshComponent.ToggleCollision (false);
 			//DBG appearance code
@@ -158,7 +165,7 @@ public class UnityView : MonoBehaviour {
 	public static void RegisterControllableAgent(Entity entity){
 		if (viewer==null||controllableAgents == null||entity2Homonid==null)
 			return;
-		if (!entity.HasComponent<HumanoidAI> ()||!entity.HasComponent<AgentComponent> ())
+		if (!entity.HasComponent<HumanoidAI> ()||!entity.HasComponent<BehaviorComponent> ())
 			return;
 		if (viewer == null || viewer.topDownActionCam == null || entity == null || !displaysMap.ContainsKey (entity))
 			return;
@@ -200,6 +207,7 @@ public class UnityView : MonoBehaviour {
 		joystickListener.Destroy();
 	}
 
+	//TODO move to a player manager object
 	void CheckControllerJoin()
 	{
 		var inputDevice = InputManager.ActiveDevice;
@@ -264,6 +272,7 @@ public class UnityView : MonoBehaviour {
 	}
 
 
+	//move to a player manager object
 	public static HumanPlayer FindPlayerUsingJoystick( InputDevice inputDevice )
 	{
 		if (device2Player.ContainsKey (inputDevice))
@@ -278,12 +287,13 @@ public class UnityView : MonoBehaviour {
 		return entity2Homonid [entity];
 	}
 
-
+	//move to a player manager object
 	bool ThereIsNoPlayerUsingJoystick( InputDevice inputDevice )
 	{
 		return FindPlayerUsingJoystick( inputDevice ) == null;
 	}
 
+	//move to a player manager object
 	static void OnDeviceDetached( InputDevice inputDevice )
 	{
 		var player = FindPlayerUsingJoystick( inputDevice );
@@ -342,11 +352,11 @@ public class UnityView : MonoBehaviour {
 
 	public static void TakeControlOf(Entity entity){
 		//TODO add an appropriate controller for the specific entity type
-		if (!entity.HasComponent<HumanoidAI> ()||!entity.HasComponent<AgentComponent> ())
+		if (!entity.HasComponent<HumanoidAI> ()||!entity.HasComponent<BehaviorComponent> ())
 			return;
 		if (viewer == null || viewer.topDownActionCam == null || entity == null || !displaysMap.ContainsKey (entity))
 			return;
-		var ac = entity.GetComponent<AgentComponent> ();
+		var ac = entity.GetComponent<BehaviorComponent> ();
 		ac.TakeControl ();
 		GameObject view = displaysMap [entity];
 		var pc = view.GetComponent<UnityMeshComponent> ();
@@ -375,11 +385,11 @@ public class UnityView : MonoBehaviour {
 
 	public static void ReleaseControlOf(Entity entity){
 		//TODO add an appropriate controller for the specific entity type
-		if (!entity.HasComponent<HumanoidAI> ()||!entity.HasComponent<AgentComponent> ())
+		if (!entity.HasComponent<HumanoidAI> ()||!entity.HasComponent<BehaviorComponent> ())
 			return;
 		if (viewer == null || viewer.topDownActionCam == null || entity == null || !displaysMap.ContainsKey (entity))
 			return;
-		var ac = entity.GetComponent<AgentComponent> ();
+		var ac = entity.GetComponent<BehaviorComponent> ();
 		ac.ReleaseControl ();
 		GameObject view = displaysMap [entity];
 		var pc = view.GetComponent<UnityMeshComponent> ();

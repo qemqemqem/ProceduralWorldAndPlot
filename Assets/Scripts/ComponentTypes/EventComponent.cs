@@ -59,7 +59,7 @@ namespace CSD
 			return false;
 		}
 		public override EventComponent GetWayToDo () {
-			var actorAgent = actor.GetEntity ().GetComponent<AgentComponent> ();
+			var actorAgent = actor.GetEntity ().GetComponent<BehaviorComponent> ();
 			if (actorAgent == null)
 				return null;
 			var components = actor.GetEntity ().GetComponents<IComponent> ();
@@ -133,12 +133,20 @@ namespace CSD
 		bool HasReachedDestination();
 		void Cancel();
 		void TogglePathfinding (bool value);
+		//TODO this is probalby overloaded and should be a different interface
 		void ToggleCollision (bool value);
+	}
+
+	public interface ISensingInterface{
+		List<IEntity> GetNearbyEntities (float range);
+		bool HasLineOfSight (IEntity entity);
+		bool OnSameSurface (IEntity entity);
+		float GetBrightness (IEntity entity);
 	}
 
 	public class MoveEvent : EventComponent
 	{
-		private AgentComponent mover;
+		private BehaviorComponent mover;
 		private PositionComponent moverPosition;
 		private Vector2 desiredPosition;
 		private float moveSpeed;
@@ -147,7 +155,7 @@ namespace CSD
 		private IPathfindingInterface pc;
 
 
-		public MoveEvent (IPathfindingInterface pc, AgentComponent mover, Vector2 desiredPosition, float moveSpeed)
+		public MoveEvent (IPathfindingInterface pc, BehaviorComponent mover, Vector2 desiredPosition, float moveSpeed)
 		{
 			this.pc = pc;
 			this.mover = mover;
@@ -239,7 +247,7 @@ namespace CSD
 
 	public class EatEvent : EventComponent
 	{
-		private AgentComponent eater;
+		private BehaviorComponent eater;
 		private PositionComponent food;
 		private PlantComponent plant;
 		private float progress;
@@ -247,7 +255,7 @@ namespace CSD
 
 		public EatEvent (IEntity eater, PositionComponent food)
 		{
-			this.eater = eater.GetComponent<AgentComponent>();
+			this.eater = eater.GetComponent<BehaviorComponent>();
 			this.food = food;
 			this.plant = food.GetEntity ().GetComponent<PlantComponent> ();
 		}

@@ -7,7 +7,8 @@ using InControl;
 namespace CSD
 {
 
-	public enum ControlState{ACTION_GAME, BUILDING_GAME};
+	//TODO this should be modified so that the player is just data, a player manager should be responsible for adding and removing players, updating the cameras and UI and providing entities to control
+	public enum ControlState{ACTION_GAME, BUILDING_GAME, ENTRY_STATE};
 
 	public class HumanPlayer{
 		private UnityView view;
@@ -16,11 +17,15 @@ namespace CSD
 		public TopDownActionCamera camera;
 		private TopDownActions actions;
 		public Entity entity;
-		private ControlState state = ControlState.BUILDING_GAME;
+		private ControlState state = ControlState.ENTRY_STATE;
 		private BuildCursor cursor;
+		private Transform cursorContent;
 		private bool following = false;
 		private float zoomSpeedPerSecond = 4f;
 
+		//TODO switch to this constructor and move this stuff to a player state that manages controls and selections and whatnot
+		public HumanPlayer(){
+		}
 
 		public HumanPlayer(UnityView view, InputDevice inputDevice, TopDownActionCamera camera){
 			this.view = view;
@@ -34,6 +39,7 @@ namespace CSD
 			this.camera = camera;
 			camera.SetFocus (cursor.gameObject.GetComponent<CameraFocus>());
 			cursor.AssertControl (actions, this);
+			SetState (ControlState.BUILDING_GAME);
 		}
 
 		public InputDevice GetInputDevice(){
@@ -55,6 +61,7 @@ namespace CSD
 				UpdateActionControls ();
 				break;
 			case ControlState.BUILDING_GAME:
+				//TODO open menu and pass in input device to build menu
 				UpdateBuildControls ();
 				break;
 			}
@@ -64,14 +71,54 @@ namespace CSD
 			if (homonid == null)
 				return;
 			if (actions.Back.WasPressed) {
-				//TODO release should go through view so we can make the entity resume it's previous behavior
-				UnityView.ReleaseHumanoid(this);
-				homonid.ReleaseControl ();
+				SetState (ControlState.BUILDING_GAME);
+			}
+		}
+
+		public void SetState(ControlState state){
+			if (state == this.state)
+				return;
+			if (state == ControlState.BUILDING_GAME) {
+				UnityView.ReleaseHumanoid (this);
+				if (homonid != null) {
+					homonid.ReleaseControl ();
+					cursor.transform.position = homonid.transform.position;
+				}
 				state = ControlState.BUILDING_GAME;
-				cursor.transform.position = homonid.transform.position;
 				cursor.AssertControl (actions, this);
-				UnityView.viewer.topDownActionCam.SetFocus (cursor.gameObject.GetComponent<CameraFocus>());
+				UnityView.viewer.topDownActionCam.SetFocus (cursor.gameObject.GetComponent<CameraFocus> ());
 				following = true;
+				//CREATE BUILD MENu
+				List<MenuButton> buttons = new List<MenuButton>();
+				foreach (var building in UnityView.viewer.buildings) {
+					MenuButton button = new MenuButton ();
+					button.text = building.name;
+					button.onClick = () => {
+						if(cursorContent!=null){
+							Transform newThing = Transform.Instantiate(cursorContent);
+							newThing.position = cursorContent.position;
+							newThing.rotation = cursorContent.rotation;
+						}
+					};
+					button.onFocus = () => {
+						if(cursorContent!=null)
+							GameObject.Destroy(cursorContent.gameObject);
+						Transform newBuilding = Transform.Instantiate(building);
+						cursorContent = newBuilding;
+						newBuilding.SetParent(cursor.transform);
+						newBuilding.localPosition = Vector3.zero;
+					};
+					buttons.Add (button);
+				}
+				UnityView.viewer.menu.SetupMenu (inputDevice, buttons);
+			} else if (state == ControlState.ACTION_GAME) {
+				if (entity != null) {
+					state = ControlState.ACTION_GAME;
+					cursor.ReleaseControl ();
+					UnityView.ControlHumanoid (this);
+				}
+			} else {
+				Debug.LogError ("What the fuck state is this you idiot!?!?! " + state);
 			}
 		}
 
@@ -90,18 +137,11 @@ namespace CSD
 			}
 
 			if (actions.Back.WasPressed) {
-				if (entity != null) {
-					state = ControlState.ACTION_GAME;
-					cursor.ReleaseControl ();
-					UnityView.ControlHumanoid (this);
-				}
+				SetState (ControlState.ACTION_GAME);
 			}
 			if (actions.SpeechUp.WasPressed) {
-				if (entity != null) {
-					state = ControlState.ACTION_GAME;
-					cursor.ReleaseControl ();
-					UnityView.ControlHumanoid (this);
-				}
+				SetState (ControlState.ACTION_GAME);
+
 			}
 			if (actions.SpeechLeft.WasPressed) {
 				//previous entity, move to and lock on until the camera is panned
@@ -155,5 +195,62 @@ namespace CSD
 			homonid.ReleaseControl ();
 		}
 	}
+
+	//This is what we'll use to manage the differnt game states for different players
+	public class PlayerState{
+		//TODO make variants here and have a way to transition between them...
+		//should track the camera, what we control, menus and UI
+		//should track stackable states when applicable (i.e. aiming, steering a projectile etc.)
+		public void Update(){
+		}
+	}
+
+/*	public class PlayerManager{
+		private Dictionary<InputDevice, HumanPlayer> device2Player = new Dictionary<InputDevice, HumanPlayer> ();
+		private ControllerActions controllerListener;
+
+		public PlayerManager(){
+			controllerListener = ControllerActions.CreateWithJoystickBindings ();
+		}
+
+		public void Update(){
+			CheckControllerJoin ();
+		}
+
+		void CheckControllerJoin()
+		{
+			var inputDevice = InputManager.ActiveDevice;
+			if (JoinButtonWasPressedOnListener( controllerListener ))
+			{
+				if (IsInputDeviceInUse( inputDevice ))
+				{
+					var player = CreatePlayer( inputDevice );
+				}
+			}
+		}
+
+		private bool JoinButtonWasPressedOnListener( ControllerActions actions )
+		{
+			return actions.Start || actions.A;
+		}
+
+		private bool IsInputDeviceInUse( InputDevice inputDevice )
+		{
+			return FindPlayerUsingJoystick( inputDevice ) == null;
+		}
+
+		private HumanPlayer FindPlayerUsingJoystick( InputDevice inputDevice )
+		{
+			if (device2Player.ContainsKey (inputDevice))
+				return device2Player [inputDevice];
+			else
+				return null;
+		}
+
+		private HumanPlayer CreatePlayer(InputDevice inputDevice){
+			var player = new HumanPlayer ();
+			return player;
+		}
+	}*/
 
 }

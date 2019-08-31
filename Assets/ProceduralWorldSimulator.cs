@@ -71,7 +71,7 @@ namespace CSD{
 				person.AddComponent (position);
 				HumanoidAI brain = new HumanoidAI ();
 				person.AddComponent (brain);
-				AgentComponent agent = new AgentComponent (brain);
+				BehaviorComponent agent = new BehaviorComponent (brain);
 				agent.name = GetRandomName();
 				person.AddComponent (agent);
 				person.AddComponent (new InventoryComponent());

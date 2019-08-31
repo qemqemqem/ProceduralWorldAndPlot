@@ -7,7 +7,7 @@ namespace CSD{
 	public class AgentDebugger : MonoBehaviour {
 		private UnityMeshComponent umc;
 		private IEntity entity;
-		private AgentComponent ac;
+		private BehaviorComponent ac;
 		[TextArea(4,40)]
 		public string currentBehavior;
 		public List<Transform> targets = new List<Transform> ();
@@ -26,7 +26,7 @@ namespace CSD{
 			entity = umc.GetEntity ();
 			if (entity == null)
 				return;
-			ac = entity.GetComponent<AgentComponent> ();
+			ac = entity.GetComponent<BehaviorComponent> ();
 			if (ac == null)
 				return;
 			currentBehavior = "";//TODO get entity name component
